@@ -8,17 +8,17 @@
   }
   
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-navy-50 text-navy-900;
   }
 }
 
 @layer components {
   .propello-card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition-all duration-200;
+    @apply bg-white rounded-xl shadow-lg border border-navy-200 p-6 transition-all duration-200;
   }
   
   .propello-card:hover {
-    @apply shadow-md -translate-y-0.5;
+    @apply shadow-xl -translate-y-1 border-navy-300;
   }
   
   .lead-card {
@@ -38,19 +38,19 @@
   }
   
   .btn-primary {
-    @apply bg-propello-blue text-white border-none rounded-lg px-6 py-3 font-medium text-sm cursor-pointer transition-all duration-200;
+    @apply bg-navy-700 text-white border-none rounded-lg px-6 py-3 font-medium text-sm cursor-pointer transition-all duration-200 shadow-md;
   }
   
   .btn-primary:hover {
-    @apply bg-propello-blue-700 -translate-y-0.5;
+    @apply bg-navy-800 -translate-y-0.5 shadow-lg;
   }
   
   .btn-secondary {
-    @apply bg-white text-gray-700 border border-gray-300 rounded-lg px-6 py-3 font-medium text-sm cursor-pointer transition-all duration-200;
+    @apply bg-white text-navy-700 border border-navy-300 rounded-lg px-6 py-3 font-medium text-sm cursor-pointer transition-all duration-200 shadow-sm;
   }
   
   .btn-secondary:hover {
-    @apply bg-gray-50 border-gray-400;
+    @apply bg-navy-50 border-navy-400 shadow-md;
   }
   
   .badge-hot {
@@ -66,23 +66,23 @@
   }
   
   .propello-input {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg text-sm transition-all duration-200 bg-white;
+    @apply w-full px-4 py-3 border border-navy-300 rounded-lg text-sm transition-all duration-200 bg-white shadow-sm;
   }
   
   .propello-input:focus {
-    @apply outline-none border-blue-500 ring-2 ring-blue-100;
+    @apply outline-none border-navy-500 ring-2 ring-navy-100 shadow-md;
   }
   
   .propello-input::placeholder {
-    @apply text-gray-400;
+    @apply text-navy-400;
   }
   
   .propello-select {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer;
+    @apply w-full px-4 py-3 border border-navy-300 rounded-lg text-sm bg-white cursor-pointer shadow-sm;
   }
   
   .spinner {
-    @apply w-5 h-5 border-2 border-gray-200 border-t-propello-blue rounded-full animate-spin;
+    @apply w-5 h-5 border-2 border-navy-200 border-t-navy-600 rounded-full animate-spin;
   }
   
   .skeleton {
