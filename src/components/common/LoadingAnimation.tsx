@@ -14,7 +14,7 @@ const LoadingAnimation: React.FC<LoadingAnimationProps> = ({ onComplete }) => {
   }, [onComplete])
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-gradient-to-br from-navy-900 via-navy-800 to-slate-900 flex items-center justify-center z-50">
       <div className="text-center">
         {/* Animated Logo */}
         <div className="relative mb-8">
@@ -23,8 +23,9 @@ const LoadingAnimation: React.FC<LoadingAnimationProps> = ({ onComplete }) => {
             <div className="absolute inset-0 flex items-center justify-center">
               <svg 
                 viewBox="0 0 24 24" 
-                className="w-16 h-16 text-white animate-pulse"
+                className="w-16 h-16 text-white animate-pulse drop-shadow-lg"
                 fill="currentColor"
+                style={{ filter: 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.3))' }}
               >
                 {/* House structure */}
                 <path d="M12 2L2 7v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7L12 2z"/>
@@ -44,8 +45,8 @@ const LoadingAnimation: React.FC<LoadingAnimationProps> = ({ onComplete }) => {
             </div>
             
             {/* Rotating ring around house */}
-            <div className="absolute inset-0 rounded-full border-2 border-transparent bg-gradient-to-r from-blue-400 to-purple-400 animate-spin opacity-30">
-              <div className="absolute inset-1 rounded-full border-2 border-transparent bg-gradient-to-r from-purple-400 to-pink-400 animate-spin opacity-50" style={{ animationDirection: 'reverse', animationDuration: '2s' }}></div>
+            <div className="absolute inset-0 rounded-full border-2 border-transparent bg-gradient-to-r from-navy-400 to-slate-400 animate-spin opacity-40">
+              <div className="absolute inset-1 rounded-full border-2 border-transparent bg-gradient-to-r from-slate-400 to-navy-500 animate-spin opacity-60" style={{ animationDirection: 'reverse', animationDuration: '2s' }}></div>
             </div>
           </div>
         </div>
@@ -53,7 +54,7 @@ const LoadingAnimation: React.FC<LoadingAnimationProps> = ({ onComplete }) => {
         {/* Propello Text */}
         <div className="space-y-4">
           <h1 className="text-4xl font-bold text-white mb-2 font-serif">
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
               PROPELLO
             </span>
           </h1>
@@ -64,9 +65,9 @@ const LoadingAnimation: React.FC<LoadingAnimationProps> = ({ onComplete }) => {
           
           {/* Loading dots */}
           <div className="flex justify-center space-x-1 mt-6">
-            <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-            <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
           </div>
         </div>
 
