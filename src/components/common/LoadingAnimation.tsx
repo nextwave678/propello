@@ -19,25 +19,42 @@ const LoadingAnimation: React.FC<LoadingAnimationProps> = ({ onComplete }) => {
         {/* Animated Logo */}
         <div className="relative mb-8">
           <div className="w-24 h-24 mx-auto relative propello-loading-logo">
-            {/* Outer rotating ring */}
-            <div className="absolute inset-0 rounded-full border-4 border-transparent bg-gradient-to-r from-blue-400 to-purple-400 animate-spin">
-              <div className="absolute inset-1 rounded-full border-4 border-transparent bg-gradient-to-r from-purple-400 to-pink-400 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '2s' }}></div>
+            {/* House Icon */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <svg 
+                viewBox="0 0 24 24" 
+                className="w-16 h-16 text-white animate-pulse"
+                fill="currentColor"
+              >
+                {/* House structure */}
+                <path d="M12 2L2 7v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7L12 2z"/>
+                
+                {/* Roof windows */}
+                <rect x="6" y="8" width="2" height="2" fill="white"/>
+                <rect x="8" y="8" width="2" height="2" fill="white"/>
+                <rect x="10" y="8" width="2" height="2" fill="white"/>
+                <rect x="12" y="8" width="2" height="2" fill="white"/>
+                
+                {/* L-shaped element */}
+                <path d="M16 10h2v2h-2v2h-2v-4h2z" fill="#94a3b8"/>
+                
+                {/* Main door */}
+                <rect x="10" y="14" width="4" height="6" fill="white"/>
+              </svg>
             </div>
             
-            {/* Inner pulsing circle */}
-            <div className="absolute inset-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse flex items-center justify-center">
-              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-ping"></div>
-              </div>
+            {/* Rotating ring around house */}
+            <div className="absolute inset-0 rounded-full border-2 border-transparent bg-gradient-to-r from-blue-400 to-purple-400 animate-spin opacity-30">
+              <div className="absolute inset-1 rounded-full border-2 border-transparent bg-gradient-to-r from-purple-400 to-pink-400 animate-spin opacity-50" style={{ animationDirection: 'reverse', animationDuration: '2s' }}></div>
             </div>
           </div>
         </div>
 
         {/* Propello Text */}
         <div className="space-y-4">
-          <h1 className="text-4xl font-bold text-white mb-2">
+          <h1 className="text-4xl font-bold text-white mb-2 font-serif">
             <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              Propello
+              PROPELLO
             </span>
           </h1>
           
