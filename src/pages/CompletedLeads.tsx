@@ -40,7 +40,7 @@ const CompletedLeads: React.FC = () => {
     setIsModalOpen(true)
   }
 
-  const handleComplete = (leadId: string, completionStatus: 'successful' | 'on_the_fence' | 'unsuccessful') => {
+  const handleComplete = (_leadId: string, _completionStatus: 'successful' | 'on_the_fence' | 'unsuccessful') => {
     // This would typically update the lead, but for now we'll just close the modal
     setIsModalOpen(false)
     setSelectedLead(null)
