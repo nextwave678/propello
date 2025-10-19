@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { Lead, LeadFilters, AnalyticsData } from '../types/lead.types'
-import { MockDataService } from '../services/mockDataService'
+import { SupabaseService } from '../services/supabaseService'
 import toast from 'react-hot-toast'
 
 interface LeadsContextType {
@@ -39,7 +39,7 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
     try {
       setLoading(true)
       setError(null)
-      const data = await MockDataService.getLeads(filters)
+      const data = await SupabaseService.getLeads(filters)
       setLeads(data)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch leads'
@@ -52,7 +52,7 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
 
   const updateLead = async (id: string, updates: Partial<Lead>) => {
     try {
-      const updatedLead = await MockDataService.updateLead(id, updates)
+      const updatedLead = await SupabaseService.updateLead(id, updates)
       setLeads(prev => prev.map(lead => lead.id === id ? updatedLead : lead))
       toast.success('Lead updated successfully')
     } catch (err) {
@@ -64,7 +64,7 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
 
   const addNote = async (leadId: string, note: string) => {
     try {
-      const updatedLead = await MockDataService.addNote(leadId, note)
+      const updatedLead = await SupabaseService.addNote(leadId, note)
       setLeads(prev => prev.map(lead => lead.id === leadId ? updatedLead : lead))
       toast.success('Note added successfully')
     } catch (err) {
@@ -80,7 +80,7 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
         completion_status: completionStatus,
         completed_at: new Date().toISOString()
       }
-      const updatedLead = await MockDataService.updateLead(leadId, updates)
+      const updatedLead = await SupabaseService.updateLead(leadId, updates)
       setLeads(prev => prev.map(lead => lead.id === leadId ? updatedLead : lead))
       toast.success(`Lead marked as ${completionStatus.replace('_', ' ')}`)
     } catch (err) {
@@ -92,7 +92,7 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
 
   const getAnalytics = async () => {
     try {
-      const data = await MockDataService.getAnalytics()
+      const data = await SupabaseService.getAnalytics()
       setAnalytics(data)
     } catch (err) {
       console.error('Failed to fetch analytics:', err)
@@ -103,15 +103,15 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
     refreshLeads()
     getAnalytics()
 
-    // Set up mock subscriptions (no real-time for demo)
-    const leadsSubscription = MockDataService.subscribeToLeads((payload) => {
-      console.log('Mock real-time update:', payload)
+    // Set up real-time subscriptions
+    const leadsSubscription = SupabaseService.subscribeToLeads((payload) => {
+      console.log('Real-time leads update:', payload)
       refreshLeads()
       getAnalytics()
     })
 
-    const activitiesSubscription = MockDataService.subscribeToActivities((payload) => {
-      console.log('Mock activity update:', payload)
+    const activitiesSubscription = SupabaseService.subscribeToActivities((payload) => {
+      console.log('Real-time activities update:', payload)
       getAnalytics()
     })
 

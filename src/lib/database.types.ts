@@ -29,6 +29,8 @@ export interface Database {
           tags: string[]
           assigned_to: string | null
           is_archived: boolean
+          completion_status: 'successful' | 'on_the_fence' | 'unsuccessful' | null
+          completed_at: string | null
         }
         Insert: {
           id?: string
@@ -49,6 +51,8 @@ export interface Database {
           tags?: string[]
           assigned_to?: string | null
           is_archived?: boolean
+          completion_status?: 'successful' | 'on_the_fence' | 'unsuccessful' | null
+          completed_at?: string | null
         }
         Update: {
           id?: string
@@ -69,6 +73,8 @@ export interface Database {
           tags?: string[]
           assigned_to?: string | null
           is_archived?: boolean
+          completion_status?: 'successful' | 'on_the_fence' | 'unsuccessful' | null
+          completed_at?: string | null
         }
         Relationships: [
           {
