@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Connection Test</title>
+</head>
+<body>
+    <h1>Supabase Connection Test</h1>
+    <div id="status">Testing...</div>
+    
+    <script>
+        // Test environment variables
+        console.log('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
+        console.log('VITE_SUPABASE_ANON_KEY:', import.meta.env.VITE_SUPABASE_ANON_KEY);
+        
+        // Test Supabase connection
+        try {
+            const { createClient } = window.supabase || {};
+            if (createClient) {
+                const supabase = createClient(
+                    import.meta.env.VITE_SUPABASE_URL,
+                    import.meta.env.VITE_SUPABASE_ANON_KEY
+                );
+                
+                // Test connection
+                supabase.from('leads').select('count').then(result => {
+                    document.getElementById('status').innerHTML = '✅ Supabase connected! Count: ' + result.data?.length;
+                }).catch(error => {
+                    document.getElementById('status').innerHTML = '❌ Supabase error: ' + error.message;
+                });
+            } else {
+                document.getElementById('status').innerHTML = '❌ Supabase client not loaded';
+            }
+        } catch (error) {
+            document.getElementById('status').innerHTML = '❌ Error: ' + error.message;
+        }
+    </script>
+</body>
+</html>
