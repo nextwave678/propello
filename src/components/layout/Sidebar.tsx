@@ -4,7 +4,6 @@ import {
   LayoutDashboard, 
   Users, 
   BarChart3, 
-  Settings,
   Home,
   X,
   CheckCircle,
@@ -22,7 +21,6 @@ const Sidebar: React.FC = () => {
     { name: 'Uncompleted Leads', href: '/uncompleted-leads', icon: Clock },
     { name: 'All Leads', href: '/leads', icon: Users },
     { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-    { name: 'Settings', href: '/settings', icon: Settings },
   ]
 
   const isActive = (path: string) => {
