@@ -17,6 +17,8 @@ export interface Lead {
   tags: string[]
   assigned_to?: string
   is_archived: boolean
+  completion_status?: 'successful' | 'on_the_fence' | 'unsuccessful'
+  completed_at?: string
 }
 
 export interface LeadActivity {
@@ -39,6 +41,8 @@ export interface LeadFilters {
   dateTo?: string
   assigned_to?: string
   is_archived?: boolean
+  completion_status?: 'successful' | 'on_the_fence' | 'unsuccessful'
+  is_completed?: boolean
 }
 
 export interface AnalyticsData {
@@ -83,4 +87,5 @@ export interface LeadFormData {
   notes?: string[]
   tags?: string[]
 }
+
 

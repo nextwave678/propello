@@ -1,13 +1,16 @@
 import React, { useState } from 'react'
 import { useLeads } from '../context/LeadsContext'
 import LeadCard from '../components/leads/LeadCard'
-import { LeadFilters } from '../types/lead.types'
+import CompletionModal from '../components/leads/CompletionModal'
+import { LeadFilters, Lead } from '../types/lead.types'
 import { Search, Filter, X } from 'lucide-react'
 
 const Leads: React.FC = () => {
-  const { leads, loading, error, refreshLeads } = useLeads()
+  const { leads, loading, error, refreshLeads, markLeadComplete } = useLeads()
   const [filters, setFilters] = useState<LeadFilters>({})
   const [showFilters, setShowFilters] = useState(false)
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleFilterChange = (newFilters: LeadFilters) => {
     setFilters(newFilters)
@@ -17,6 +20,21 @@ const Leads: React.FC = () => {
   const clearFilters = () => {
     setFilters({})
     refreshLeads()
+  }
+
+  const handleLeadComplete = (lead: Lead) => {
+    setSelectedLead(lead)
+    setIsModalOpen(true)
+  }
+
+  const handleModalComplete = async (leadId: string, completionStatus: 'successful' | 'on_the_fence' | 'unsuccessful') => {
+    try {
+      await markLeadComplete(leadId, completionStatus)
+      setIsModalOpen(false)
+      setSelectedLead(null)
+    } catch (error) {
+      console.error('Failed to mark lead as complete:', error)
+    }
   }
 
   if (loading) {
@@ -159,10 +177,22 @@ const Leads: React.FC = () => {
             <LeadCard
               key={lead.id}
               lead={lead}
+              onComplete={handleLeadComplete}
             />
           ))}
         </div>
       )}
+
+      {/* Completion Modal */}
+      <CompletionModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false)
+          setSelectedLead(null)
+        }}
+        lead={selectedLead}
+        onComplete={handleModalComplete}
+      />
     </div>
   )
 }

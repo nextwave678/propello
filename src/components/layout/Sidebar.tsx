@@ -6,7 +6,8 @@ import {
   BarChart3, 
   Settings,
   Home,
-  X
+  X,
+  CheckCircle
 } from 'lucide-react'
 
 const Sidebar: React.FC = () => {
@@ -15,6 +16,7 @@ const Sidebar: React.FC = () => {
   const navigation = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
     { name: 'All Leads', href: '/leads', icon: Users },
+    { name: 'Completed Leads', href: '/completed-leads', icon: CheckCircle },
     { name: 'Analytics', href: '/analytics', icon: BarChart3 },
     { name: 'Settings', href: '/settings', icon: Settings },
   ]

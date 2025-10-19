@@ -1,14 +1,15 @@
 import React from 'react'
-import { Phone, Mail, Calendar, Clock, User, MapPin } from 'lucide-react'
+import { Phone, Mail, Calendar, Clock, User, MapPin, CheckCircle } from 'lucide-react'
 import { Lead } from '../../types/lead.types'
 import { formatDistanceToNow } from 'date-fns'
 
 interface LeadCardProps {
   lead: Lead
   onClick?: (lead: Lead) => void
+  onComplete?: (lead: Lead) => void
 }
 
-const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick }) => {
+const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick, onComplete }) => {
   const getQualityBadge = (quality: string) => {
     switch (quality) {
       case 'hot':
@@ -154,9 +155,43 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick }) => {
           <span className="font-medium">Latest note:</span> {lead.notes[lead.notes.length - 1]}
         </div>
       )}
+
+      {/* Completion Button */}
+      {!lead.completion_status && (
+        <div className="flex justify-end mt-4">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onComplete?.(lead)
+            }}
+            className="flex items-center space-x-2 px-3 py-2 bg-propello-blue text-white text-sm font-medium rounded-lg hover:bg-propello-blue-600 transition-colors duration-200"
+          >
+            <CheckCircle className="h-4 w-4" />
+            <span>Mark Complete</span>
+          </button>
+        </div>
+      )}
+
+      {/* Completion Status Badge */}
+      {lead.completion_status && (
+        <div className="flex justify-end mt-4">
+          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+            lead.completion_status === 'successful' 
+              ? 'bg-green-100 text-green-800' 
+              : lead.completion_status === 'on_the_fence'
+              ? 'bg-yellow-100 text-yellow-800'
+              : 'bg-red-100 text-red-800'
+          }`}>
+            {lead.completion_status === 'successful' ? '✓ Successful' : 
+             lead.completion_status === 'on_the_fence' ? '⚠ On the Fence' : 
+             '✗ Unsuccessful'}
+          </span>
+        </div>
+      )}
     </div>
   )
 }
 
 export default LeadCard
+
 

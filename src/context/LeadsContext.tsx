@@ -11,6 +11,7 @@ interface LeadsContextType {
   refreshLeads: (filters?: LeadFilters) => Promise<void>
   updateLead: (id: string, updates: Partial<Lead>) => Promise<void>
   addNote: (leadId: string, note: string) => Promise<void>
+  markLeadComplete: (leadId: string, completionStatus: 'successful' | 'on_the_fence' | 'unsuccessful') => Promise<void>
   getAnalytics: () => Promise<void>
 }
 
@@ -73,6 +74,22 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
     }
   }
 
+  const markLeadComplete = async (leadId: string, completionStatus: 'successful' | 'on_the_fence' | 'unsuccessful') => {
+    try {
+      const updates = {
+        completion_status: completionStatus,
+        completed_at: new Date().toISOString()
+      }
+      const updatedLead = await MockDataService.updateLead(leadId, updates)
+      setLeads(prev => prev.map(lead => lead.id === leadId ? updatedLead : lead))
+      toast.success(`Lead marked as ${completionStatus.replace('_', ' ')}`)
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to mark lead as complete'
+      toast.error(errorMessage)
+      throw err
+    }
+  }
+
   const getAnalytics = async () => {
     try {
       const data = await MockDataService.getAnalytics()
@@ -112,6 +129,7 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
     refreshLeads,
     updateLead,
     addNote,
+    markLeadComplete,
     getAnalytics
   }
 
