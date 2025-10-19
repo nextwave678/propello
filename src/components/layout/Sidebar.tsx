@@ -8,7 +8,8 @@ import {
   Home,
   X,
   CheckCircle,
-  AlertTriangle
+  AlertTriangle,
+  Clock
 } from 'lucide-react'
 
 const Sidebar: React.FC = () => {
@@ -16,9 +17,10 @@ const Sidebar: React.FC = () => {
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    { name: 'All Leads', href: '/leads', icon: Users },
-    { name: 'Completed Leads', href: '/completed-leads', icon: CheckCircle },
     { name: 'On the Fence', href: '/on-the-fence', icon: AlertTriangle },
+    { name: 'Completed Leads', href: '/completed-leads', icon: CheckCircle },
+    { name: 'Uncompleted Leads', href: '/uncompleted-leads', icon: Clock },
+    { name: 'All Leads', href: '/leads', icon: Users },
     { name: 'Analytics', href: '/analytics', icon: BarChart3 },
     { name: 'Settings', href: '/settings', icon: Settings },
   ]

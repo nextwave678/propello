@@ -91,6 +91,146 @@ const mockLeads: Lead[] = [
     notes: ['First-time buyer', 'Needs pre-approval'],
     tags: ['first-time-buyer', 'starter-home'],
     is_archived: false
+  },
+  // Completed leads - Successful
+  {
+    id: '6',
+    created_at: '2024-01-10T09:00:00Z',
+    updated_at: '2024-01-16T14:30:00Z',
+    name: 'Jennifer Martinez',
+    phone: '+1 (555) 789-0123',
+    email: 'jennifer.m@email.com',
+    type: 'buyer',
+    timeframe: '1-2 months',
+    property_details: '3BR house in family neighborhood, good schools',
+    lead_quality: 'hot',
+    status: 'closed',
+    call_duration: 240,
+    call_transcript: 'Found perfect home, ready to make offer',
+    notes: ['Found dream home', 'Offer accepted', 'Closing scheduled'],
+    tags: ['family-home', 'good-schools'],
+    is_archived: false,
+    completion_status: 'successful',
+    completed_at: '2024-01-16T14:30:00Z'
+  },
+  {
+    id: '7',
+    created_at: '2024-01-09T13:15:00Z',
+    updated_at: '2024-01-15T10:45:00Z',
+    name: 'David Thompson',
+    phone: '+1 (555) 234-5678',
+    email: 'david.t@email.com',
+    type: 'seller',
+    timeframe: '2-3 months',
+    property_details: 'Luxury townhouse, recently renovated',
+    lead_quality: 'hot',
+    status: 'closed',
+    call_duration: 180,
+    call_transcript: 'Sold above asking price, very satisfied',
+    notes: ['Sold above asking', 'Happy with service', 'Referred friend'],
+    tags: ['luxury', 'renovated', 'referral'],
+    is_archived: false,
+    completion_status: 'successful',
+    completed_at: '2024-01-15T10:45:00Z'
+  },
+  // Completed leads - Unsuccessful
+  {
+    id: '8',
+    created_at: '2024-01-08T16:20:00Z',
+    updated_at: '2024-01-14T11:20:00Z',
+    name: 'Amanda Foster',
+    phone: '+1 (555) 345-6789',
+    email: 'amanda.f@email.com',
+    type: 'buyer',
+    timeframe: '3-6 months',
+    property_details: 'Looking for investment property',
+    lead_quality: 'cold',
+    status: 'dead',
+    call_duration: 90,
+    call_transcript: 'Decided to work with different agent',
+    notes: ['Went with competitor', 'Price was main factor'],
+    tags: ['investment', 'price-sensitive'],
+    is_archived: false,
+    completion_status: 'unsuccessful',
+    completed_at: '2024-01-14T11:20:00Z'
+  },
+  // On the fence leads
+  {
+    id: '9',
+    created_at: '2024-01-07T10:45:00Z',
+    updated_at: '2024-01-13T15:30:00Z',
+    name: 'Michael Rodriguez',
+    phone: '+1 (555) 456-7890',
+    email: 'michael.r@email.com',
+    type: 'buyer',
+    timeframe: '2-4 months',
+    property_details: 'Looking for condo downtown, budget flexible',
+    lead_quality: 'warm',
+    status: 'qualified',
+    call_duration: 200,
+    call_transcript: 'Interested but still comparing options',
+    notes: ['Comparing with other agents', 'Budget flexible', 'Needs more time'],
+    tags: ['downtown', 'condo', 'flexible-budget'],
+    is_archived: false,
+    completion_status: 'on_the_fence',
+    completed_at: '2024-01-13T15:30:00Z'
+  },
+  {
+    id: '10',
+    created_at: '2024-01-06T14:30:00Z',
+    updated_at: '2024-01-12T09:15:00Z',
+    name: 'Sarah Kim',
+    phone: '+1 (555) 567-8901',
+    email: 'sarah.k@email.com',
+    type: 'seller',
+    timeframe: '1-3 months',
+    property_details: 'Family home, needs to sell for relocation',
+    lead_quality: 'warm',
+    status: 'contacted',
+    call_duration: 160,
+    call_transcript: 'Considering timing, waiting for job confirmation',
+    notes: ['Job relocation pending', 'Timing uncertain', 'Follow up in 2 weeks'],
+    tags: ['relocation', 'timing-sensitive'],
+    is_archived: false,
+    completion_status: 'on_the_fence',
+    completed_at: '2024-01-12T09:15:00Z'
+  },
+  // More uncompleted leads
+  {
+    id: '11',
+    created_at: '2024-01-05T11:20:00Z',
+    updated_at: '2024-01-05T11:20:00Z',
+    name: 'Chris Anderson',
+    phone: '+1 (555) 678-9012',
+    email: 'chris.a@email.com',
+    type: 'buyer',
+    timeframe: '6-12 months',
+    property_details: 'First-time buyer, looking for starter home',
+    lead_quality: 'cold',
+    status: 'new',
+    call_duration: 75,
+    call_transcript: 'Just starting to look, very early stage',
+    notes: ['Early stage buyer', 'Needs education'],
+    tags: ['first-time-buyer', 'early-stage'],
+    is_archived: false
+  },
+  {
+    id: '12',
+    created_at: '2024-01-04T15:45:00Z',
+    updated_at: '2024-01-04T15:45:00Z',
+    name: 'Maria Garcia',
+    phone: '+1 (555) 789-0123',
+    email: 'maria.g@email.com',
+    type: 'seller',
+    timeframe: '3-6 months',
+    property_details: 'Investment property, looking to sell for profit',
+    lead_quality: 'warm',
+    status: 'contacted',
+    call_duration: 120,
+    call_transcript: 'Interested in selling, wants market analysis',
+    notes: ['Investment property', 'Wants market analysis'],
+    tags: ['investment', 'market-analysis'],
+    is_archived: false
   }
 ]
 
@@ -149,6 +289,16 @@ export class MockDataService {
       }
       if (filters.is_archived !== undefined) {
         filteredLeads = filteredLeads.filter(lead => lead.is_archived === filters.is_archived)
+      }
+      if (filters.completion_status) {
+        filteredLeads = filteredLeads.filter(lead => lead.completion_status === filters.completion_status)
+      }
+      if (filters.is_completed !== undefined) {
+        if (filters.is_completed) {
+          filteredLeads = filteredLeads.filter(lead => lead.completion_status !== undefined)
+        } else {
+          filteredLeads = filteredLeads.filter(lead => lead.completion_status === undefined)
+        }
       }
     }
     

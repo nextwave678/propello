@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard'
 import Leads from './pages/Leads'
 import CompletedLeads from './pages/CompletedLeads'
 import OnTheFence from './pages/OnTheFence'
+import UncompletedLeads from './pages/UncompletedLeads'
 import Analytics from './pages/Analytics'
 import { LeadsProvider } from './context/LeadsContext'
 import LoadingAnimation from './components/common/LoadingAnimation'
@@ -33,9 +34,10 @@ function App() {
           <Layout>
             <Routes>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/leads" element={<Leads />} />
-              <Route path="/completed-leads" element={<CompletedLeads />} />
               <Route path="/on-the-fence" element={<OnTheFence />} />
+              <Route path="/completed-leads" element={<CompletedLeads />} />
+              <Route path="/uncompleted-leads" element={<UncompletedLeads />} />
+              <Route path="/leads" element={<Leads />} />
               <Route path="/analytics" element={<Analytics />} />
             </Routes>
           </Layout>
