@@ -7,7 +7,8 @@ import {
   Settings,
   Home,
   X,
-  CheckCircle
+  CheckCircle,
+  AlertTriangle
 } from 'lucide-react'
 
 const Sidebar: React.FC = () => {
@@ -17,6 +18,7 @@ const Sidebar: React.FC = () => {
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
     { name: 'All Leads', href: '/leads', icon: Users },
     { name: 'Completed Leads', href: '/completed-leads', icon: CheckCircle },
+    { name: 'On the Fence', href: '/on-the-fence', icon: AlertTriangle },
     { name: 'Analytics', href: '/analytics', icon: BarChart3 },
     { name: 'Settings', href: '/settings', icon: Settings },
   ]

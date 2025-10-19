@@ -5,6 +5,7 @@ import Layout from './components/layout/Layout'
 import Dashboard from './pages/Dashboard'
 import Leads from './pages/Leads'
 import CompletedLeads from './pages/CompletedLeads'
+import OnTheFence from './pages/OnTheFence'
 import Analytics from './pages/Analytics'
 import { LeadsProvider } from './context/LeadsContext'
 import LoadingAnimation from './components/common/LoadingAnimation'
@@ -34,6 +35,7 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/leads" element={<Leads />} />
               <Route path="/completed-leads" element={<CompletedLeads />} />
+              <Route path="/on-the-fence" element={<OnTheFence />} />
               <Route path="/analytics" element={<Analytics />} />
             </Routes>
           </Layout>
