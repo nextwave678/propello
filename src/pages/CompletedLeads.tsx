@@ -32,7 +32,7 @@ const CompletedLeads: React.FC = () => {
   }, [completedLeads, searchTerm, statusFilter])
 
   useEffect(() => {
-    refreshLeads({ is_completed: true })
+    refreshLeads()
   }, [refreshLeads])
 
   const handleLeadClick = (lead: Lead) => {

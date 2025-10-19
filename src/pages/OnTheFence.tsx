@@ -29,7 +29,7 @@ const OnTheFence: React.FC = () => {
   }, [onTheFenceLeads, searchTerm])
 
   useEffect(() => {
-    refreshLeads({ completion_status: 'on_the_fence' })
+    refreshLeads()
   }, [refreshLeads])
 
   const handleLeadClick = (lead: Lead) => {

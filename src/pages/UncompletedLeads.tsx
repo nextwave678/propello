@@ -29,7 +29,7 @@ const UncompletedLeads: React.FC = () => {
   }, [uncompletedLeads, searchTerm])
 
   useEffect(() => {
-    refreshLeads({ is_completed: false })
+    refreshLeads()
   }, [refreshLeads])
 
   const handleLeadClick = (lead: Lead) => {
