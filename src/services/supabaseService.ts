@@ -1,6 +1,5 @@
 import { supabase } from '../lib/supabase'
 import { Lead, LeadFilters, AnalyticsData } from '../types/lead.types'
-import { MockDataService } from './mockDataService'
 
 export class SupabaseService {
   static async getLeads(filters?: LeadFilters): Promise<Lead[]> {
@@ -44,16 +43,14 @@ export class SupabaseService {
 
       if (error) {
         console.error('Supabase error fetching leads:', error)
-        console.log('Falling back to mock data...')
-        return MockDataService.getLeads(filters)
+        throw new Error(`Failed to fetch leads: ${error.message}`)
       }
 
       console.log('Successfully fetched leads from Supabase:', data?.length || 0)
       return data || []
     } catch (error) {
       console.error('SupabaseService.getLeads error:', error)
-      console.log('Falling back to mock data due to error...')
-      return MockDataService.getLeads(filters)
+      throw error
     }
   }
 
@@ -73,16 +70,14 @@ export class SupabaseService {
 
       if (error) {
         console.error('Supabase error updating lead:', error)
-        console.log('Falling back to mock update...')
-        return MockDataService.updateLead(id, updates)
+        throw new Error(`Failed to update lead: ${error.message}`)
       }
 
       console.log('Successfully updated lead in Supabase')
       return data
     } catch (error) {
       console.error('SupabaseService.updateLead error:', error)
-      console.log('Falling back to mock update due to error...')
-      return MockDataService.updateLead(id, updates)
+      throw error
     }
   }
 
@@ -134,8 +129,7 @@ export class SupabaseService {
 
       if (leadsError) {
         console.error('Supabase error fetching leads for analytics:', leadsError)
-        console.log('Falling back to mock analytics...')
-        return MockDataService.getAnalytics()
+        throw new Error(`Failed to fetch leads for analytics: ${leadsError.message}`)
       }
 
       // Get recent activities
@@ -180,8 +174,7 @@ export class SupabaseService {
       }
     } catch (error) {
       console.error('SupabaseService.getAnalytics error:', error)
-      console.log('Falling back to mock analytics due to error...')
-      return MockDataService.getAnalytics()
+      throw error
     }
   }
 
