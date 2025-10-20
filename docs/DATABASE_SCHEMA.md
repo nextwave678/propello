@@ -286,3 +286,8 @@ WHERE is_archived = false;
 *This schema is designed to scale with Propello's growth while maintaining data integrity and performance.*
 
 
+
+
+
+
+
