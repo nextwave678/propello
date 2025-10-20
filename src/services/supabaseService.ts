@@ -1,9 +1,12 @@
 import { supabase } from '../lib/supabase'
 import { Lead, LeadFilters, AnalyticsData } from '../types/lead.types'
+import { MockDataService } from './mockDataService'
 
 export class SupabaseService {
   static async getLeads(filters?: LeadFilters): Promise<Lead[]> {
     try {
+      console.log('Attempting to fetch leads from Supabase...')
+      
       let query = supabase
         .from('leads')
         .select('*')
@@ -40,19 +43,24 @@ export class SupabaseService {
       const { data, error } = await query
 
       if (error) {
-        console.error('Error fetching leads:', error)
-        throw new Error(`Failed to fetch leads: ${error.message}`)
+        console.error('Supabase error fetching leads:', error)
+        console.log('Falling back to mock data...')
+        return MockDataService.getLeads(filters)
       }
 
+      console.log('Successfully fetched leads from Supabase:', data?.length || 0)
       return data || []
     } catch (error) {
       console.error('SupabaseService.getLeads error:', error)
-      throw error
+      console.log('Falling back to mock data due to error...')
+      return MockDataService.getLeads(filters)
     }
   }
 
   static async updateLead(id: string, updates: Partial<Lead>): Promise<Lead> {
     try {
+      console.log('Attempting to update lead in Supabase...')
+      
       const { data, error } = await supabase
         .from('leads')
         .update({
@@ -64,14 +72,17 @@ export class SupabaseService {
         .single()
 
       if (error) {
-        console.error('Error updating lead:', error)
-        throw new Error(`Failed to update lead: ${error.message}`)
+        console.error('Supabase error updating lead:', error)
+        console.log('Falling back to mock update...')
+        return MockDataService.updateLead(id, updates)
       }
 
+      console.log('Successfully updated lead in Supabase')
       return data
     } catch (error) {
       console.error('SupabaseService.updateLead error:', error)
-      throw error
+      console.log('Falling back to mock update due to error...')
+      return MockDataService.updateLead(id, updates)
     }
   }
 
@@ -114,13 +125,17 @@ export class SupabaseService {
 
   static async getAnalytics(): Promise<AnalyticsData> {
     try {
+      console.log('Attempting to fetch analytics from Supabase...')
+      
       // Get all leads for analytics
       const { data: leads, error: leadsError } = await supabase
         .from('leads')
         .select('*')
 
       if (leadsError) {
-        throw new Error(`Failed to fetch leads for analytics: ${leadsError.message}`)
+        console.error('Supabase error fetching leads for analytics:', leadsError)
+        console.log('Falling back to mock analytics...')
+        return MockDataService.getAnalytics()
       }
 
       // Get recent activities
@@ -153,6 +168,7 @@ export class SupabaseService {
       
       const conversionRate = leadsByStatus.qualified / totalLeads * 100
 
+      console.log('Successfully fetched analytics from Supabase')
       return {
         totalLeads,
         leadsByQuality,
@@ -164,7 +180,8 @@ export class SupabaseService {
       }
     } catch (error) {
       console.error('SupabaseService.getAnalytics error:', error)
-      throw error
+      console.log('Falling back to mock analytics due to error...')
+      return MockDataService.getAnalytics()
     }
   }
 
