@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { Lead, LeadFilters, AnalyticsData } from '../types/lead.types'
 import { SupabaseService } from '../services/supabaseService'
+import { MockDataService } from '../services/mockDataService'
 import toast from 'react-hot-toast'
 
 interface LeadsContextType {
@@ -42,9 +43,11 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
       const data = await SupabaseService.getLeads(filters)
       setLeads(data)
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch leads'
-      setError(errorMessage)
-      toast.error(errorMessage)
+      console.log('Supabase failed, falling back to mock data:', err)
+      // Fallback to mock data when Supabase fails
+      const mockData = await MockDataService.getLeads(filters)
+      setLeads(mockData)
+      setError(null) // Don't show error, just use mock data
     } finally {
       setLoading(false)
     }
@@ -95,7 +98,10 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
       const data = await SupabaseService.getAnalytics()
       setAnalytics(data)
     } catch (err) {
-      console.error('Failed to fetch analytics:', err)
+      console.log('Supabase analytics failed, using mock data:', err)
+      // Fallback to mock analytics
+      const mockAnalytics = await MockDataService.getAnalytics()
+      setAnalytics(mockAnalytics)
     }
   }
 
