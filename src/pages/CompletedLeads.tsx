@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Search, Filter, CheckCircle, AlertCircle, XCircle } from 'lucide-react'
 import { useLeads } from '../context/LeadsContext'
 import LeadCard from '../components/leads/LeadCard'
@@ -6,7 +6,7 @@ import CompletionModal from '../components/leads/CompletionModal'
 import { Lead } from '../types/lead.types'
 
 const CompletedLeads: React.FC = () => {
-  const { leads, loading, refreshLeads } = useLeads()
+  const { leads, loading } = useLeads()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'successful' | 'on_the_fence' | 'unsuccessful'>('all')
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Search, AlertTriangle } from 'lucide-react'
 import { useLeads } from '../context/LeadsContext'
 import LeadCard from '../components/leads/LeadCard'
@@ -6,7 +6,7 @@ import CompletionModal from '../components/leads/CompletionModal'
 import { Lead } from '../types/lead.types'
 
 const OnTheFence: React.FC = () => {
-  const { leads, loading, refreshLeads, markLeadComplete } = useLeads()
+  const { leads, loading, markLeadComplete } = useLeads()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
