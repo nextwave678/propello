@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react'
 import { Lead, LeadFilters, AnalyticsData } from '../types/lead.types'
 import { SupabaseService } from '../services/supabaseService'
 import { MockDataService } from '../services/mockDataService'
@@ -36,7 +36,7 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
   const [error, setError] = useState<string | null>(null)
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
 
-  const refreshLeads = async (filters?: LeadFilters) => {
+  const refreshLeads = useCallback(async (filters?: LeadFilters) => {
     try {
       setLoading(true)
       setError(null)
@@ -51,7 +51,7 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   const updateLead = async (id: string, updates: Partial<Lead>) => {
     try {
@@ -93,7 +93,7 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
     }
   }
 
-  const getAnalytics = async () => {
+  const getAnalytics = useCallback(async () => {
     try {
       const data = await SupabaseService.getAnalytics()
       setAnalytics(data)
@@ -103,7 +103,7 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
       const mockAnalytics = await MockDataService.getAnalytics()
       setAnalytics(mockAnalytics)
     }
-  }
+  }, [])
 
   useEffect(() => {
     refreshLeads()
@@ -125,7 +125,7 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
       leadsSubscription.unsubscribe()
       activitiesSubscription.unsubscribe()
     }
-  }, [])
+  }, [refreshLeads, getAnalytics])
 
   const value: LeadsContextType = {
     leads,

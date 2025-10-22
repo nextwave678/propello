@@ -38,9 +38,10 @@ const OnTheFence: React.FC = () => {
     })
   }, [onTheFenceLeads, searchTerm])
 
-  useEffect(() => {
-    refreshLeads()
-  }, [refreshLeads])
+  // Remove this useEffect - leads are already loaded by the context
+  // useEffect(() => {
+  //   refreshLeads()
+  // }, [refreshLeads])
 
   const handleLeadClick = (lead: Lead) => {
     setSelectedLead(lead)

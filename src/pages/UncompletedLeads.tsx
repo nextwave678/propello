@@ -28,9 +28,10 @@ const UncompletedLeads: React.FC = () => {
     })
   }, [uncompletedLeads, searchTerm])
 
-  useEffect(() => {
-    refreshLeads()
-  }, [refreshLeads])
+  // Remove this useEffect - leads are already loaded by the context
+  // useEffect(() => {
+  //   refreshLeads()
+  // }, [refreshLeads])
 
   const handleLeadClick = (lead: Lead) => {
     setSelectedLead(lead)
