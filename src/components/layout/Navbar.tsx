@@ -1,10 +1,14 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Search, Bell, User, Menu, X } from 'lucide-react'
 import { useLeads } from '../../context/LeadsContext'
 import Logo from '../common/Logo'
 
-const Navbar: React.FC = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+interface NavbarProps {
+  isMobileMenuOpen: boolean
+  setIsMobileMenuOpen: (open: boolean) => void
+}
+
+const Navbar: React.FC<NavbarProps> = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const { leads } = useLeads()
   
   // Count new leads (status: 'new')
