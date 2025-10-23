@@ -1,7 +1,9 @@
-import React from 'react'
-import { Search, Bell, User, Menu, X } from 'lucide-react'
+import React, { useState, useRef, useEffect } from 'react'
+import { Search, Bell, User, Menu, X, LogOut, Settings } from 'lucide-react'
 import { useLeads } from '../../context/LeadsContext'
+import { useAuth } from '../../context/AuthContext'
 import Logo from '../common/Logo'
+import toast from 'react-hot-toast'
 
 interface NavbarProps {
   isMobileMenuOpen: boolean
@@ -10,9 +12,37 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const { leads } = useLeads()
+  const { profile, logout } = useAuth()
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
   
   // Count new leads (status: 'new')
   const newLeadsCount = leads.filter(lead => lead.status === 'new').length
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      toast.success('Logged out successfully')
+      setIsUserMenuOpen(false)
+    } catch (error) {
+      console.error('Logout error:', error)
+      toast.error('Failed to logout. Please try again.')
+    }
+  }
 
   return (
     <nav className="bg-navy-800 shadow-lg border-b border-navy-700 sticky top-0 z-50">
@@ -52,14 +82,56 @@ const Navbar: React.FC<NavbarProps> = ({ isMobileMenuOpen, setIsMobileMenuOpen }
             </div>
 
             {/* User Profile */}
-            <div className="flex items-center space-x-3">
-              <div className="hidden sm:block">
-                <p className="text-sm font-medium text-white">Realtor</p>
-                <p className="text-xs text-gray-300">Lead Manager</p>
+            <div className="relative" ref={userMenuRef}>
+              <div className="flex items-center space-x-3">
+                <div className="hidden sm:block">
+                  <p className="text-sm font-medium text-white">
+                    {profile?.full_name || 'User'}
+                  </p>
+                  <p className="text-xs text-gray-300">
+                    {profile?.company_name || 'Lead Manager'}
+                  </p>
+                </div>
+                <button 
+                  className="p-2 text-gray-300 hover:text-white transition-colors duration-200"
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                >
+                  <User className="h-6 w-6" />
+                </button>
               </div>
-              <button className="p-2 text-gray-300 hover:text-white transition-colors duration-200">
-                <User className="h-6 w-6" />
-              </button>
+
+              {/* User Dropdown Menu */}
+              {isUserMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                  <div className="px-4 py-2 border-b border-gray-100">
+                    <p className="text-sm font-medium text-gray-900">
+                      {profile?.full_name || 'User'}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {profile?.email}
+                    </p>
+                  </div>
+                  
+                  <button
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                    onClick={() => {
+                      setIsUserMenuOpen(false)
+                      // TODO: Navigate to settings page
+                    }}
+                  >
+                    <Settings className="h-4 w-4 mr-3" />
+                    Settings
+                  </button>
+                  
+                  <button
+                    className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-4 w-4 mr-3" />
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Mobile menu button */}

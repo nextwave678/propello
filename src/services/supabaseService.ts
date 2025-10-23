@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase'
 import { Lead, LeadFilters, AnalyticsData } from '../types/lead.types'
+import { UserProfile } from '../types/auth.types'
 
 export class SupabaseService {
   static async getLeads(filters?: LeadFilters): Promise<Lead[]> {
@@ -207,6 +208,58 @@ export class SupabaseService {
       unsubscribe: () => {
         supabase.removeChannel(subscription)
       }
+    }
+  }
+
+  // Auth-related methods
+  static async getCurrentUserProfile(): Promise<UserProfile | null> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        throw new Error('Not authenticated')
+      }
+      
+      const { data: profile, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single()
+
+      if (error) {
+        console.error('Error fetching user profile:', error)
+        throw error
+      }
+
+      return profile
+    } catch (error) {
+      console.error('SupabaseService.getCurrentUserProfile error:', error)
+      throw error
+    }
+  }
+
+  static async updateUserProfile(updates: Partial<UserProfile>): Promise<UserProfile> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        throw new Error('Not authenticated')
+      }
+
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .update(updates)
+        .eq('user_id', user.id)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error updating user profile:', error)
+        throw error
+      }
+
+      return data
+    } catch (error) {
+      console.error('SupabaseService.updateUserProfile error:', error)
+      throw error
     }
   }
 }
