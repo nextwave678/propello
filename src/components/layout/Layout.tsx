@@ -21,7 +21,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           setIsMobileMenuOpen={setIsMobileMenuOpen} 
         />
         <main className="flex-1 lg:ml-64">
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {children}
           </div>
         </main>

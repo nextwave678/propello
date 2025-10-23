@@ -51,16 +51,16 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick, onComplete }) => {
 
   return (
     <div 
-      className={`propello-card lead-card ${lead.lead_quality} cursor-pointer hover:shadow-lg transition-all duration-200`}
+      className={`propello-card lead-card ${lead.lead_quality} cursor-pointer hover:shadow-lg transition-all duration-200 w-full max-w-full`}
       onClick={() => onClick?.(lead)}
     >
       {/* Header with name and quality */}
       <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">
             {lead.name}
           </h3>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-wrap">
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${getQualityBadge(lead.lead_quality)}`}>
               {lead.lead_quality.toUpperCase()}
             </span>
@@ -69,7 +69,7 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick, onComplete }) => {
             </span>
           </div>
         </div>
-        <div className="text-right">
+        <div className="text-right flex-shrink-0 ml-2">
           <span className="text-sm text-gray-500">
             {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
           </span>
@@ -79,10 +79,10 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick, onComplete }) => {
       {/* Contact Information */}
       <div className="space-y-2 mb-4">
         <div className="flex items-center text-sm text-gray-600">
-          <Phone className="h-4 w-4 mr-2 text-gray-400" />
+          <Phone className="h-4 w-4 mr-2 text-gray-400 flex-shrink-0" />
           <a 
             href={`tel:${lead.phone}`}
-            className="hover:text-propello-blue"
+            className="hover:text-propello-blue break-all"
             onClick={(e) => e.stopPropagation()}
           >
             {formatPhone(lead.phone)}
@@ -90,10 +90,10 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick, onComplete }) => {
         </div>
         {lead.email && (
           <div className="flex items-center text-sm text-gray-600">
-            <Mail className="h-4 w-4 mr-2 text-gray-400" />
+            <Mail className="h-4 w-4 mr-2 text-gray-400 flex-shrink-0" />
             <a 
               href={`mailto:${lead.email}`}
-              className="hover:text-propello-blue truncate"
+              className="hover:text-propello-blue break-all"
               onClick={(e) => e.stopPropagation()}
             >
               {lead.email}
@@ -117,7 +117,7 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick, onComplete }) => {
         {lead.property_details && (
           <div className="flex items-start text-sm">
             <MapPin className="h-4 w-4 mr-2 text-gray-400 mt-0.5 flex-shrink-0" />
-            <span className="text-gray-600 line-clamp-2">{lead.property_details}</span>
+            <span className="text-gray-600 break-words">{lead.property_details}</span>
           </div>
         )}
       </div>
@@ -136,7 +136,7 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick, onComplete }) => {
           {lead.tags.slice(0, 3).map((tag, index) => (
             <span 
               key={index}
-              className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"
+              className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full break-words"
             >
               {tag}
             </span>
@@ -152,7 +152,7 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick, onComplete }) => {
       {/* Notes Preview */}
       {lead.notes && lead.notes.length > 0 && (
         <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
-          <span className="font-medium">Latest note:</span> {lead.notes[lead.notes.length - 1]}
+          <span className="font-medium">Latest note:</span> <span className="break-words">{lead.notes[lead.notes.length - 1]}</span>
         </div>
       )}
 

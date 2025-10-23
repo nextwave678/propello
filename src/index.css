@@ -22,7 +22,7 @@
   }
   
   .lead-card {
-    @apply min-h-[200px] relative;
+    @apply min-h-[200px] relative w-full max-w-full overflow-hidden;
   }
   
   .lead-card.hot {
