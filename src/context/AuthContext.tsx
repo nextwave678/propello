@@ -108,8 +108,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Re-throw with more specific error messages
       if (error.message?.includes('Invalid login credentials')) {
         throw new Error('Invalid email or password')
-      } else if (error.message?.includes('Email not confirmed')) {
-        throw new Error('Please check your email and confirm your account')
+      } else if (error.message?.includes('Email not confirmed') || error.message?.includes('email_not_confirmed')) {
+        // Since email confirmation is disabled, this might be a false positive
+        // Let's try to proceed anyway or provide a different message
+        console.warn('Email confirmation error detected but email confirmation is disabled:', error.message)
+        throw new Error('Invalid email or password')
       } else if (error.message?.includes('User profile not found')) {
         throw new Error('Account setup incomplete. Please contact support.')
       } else if (error.code === 'PGRST301') {
