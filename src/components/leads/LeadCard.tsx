@@ -10,35 +10,6 @@ interface LeadCardProps {
 }
 
 const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick, onComplete }) => {
-  const getQualityBadge = (quality: string) => {
-    switch (quality) {
-      case 'hot':
-        return 'badge-hot'
-      case 'warm':
-        return 'badge-warm'
-      case 'cold':
-        return 'badge-cold'
-      default:
-        return 'badge-cold'
-    }
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'new':
-        return 'text-status-new bg-status-new bg-opacity-10'
-      case 'contacted':
-        return 'text-status-contacted bg-status-contacted bg-opacity-10'
-      case 'qualified':
-        return 'text-status-qualified bg-status-qualified bg-opacity-10'
-      case 'closed':
-        return 'text-status-closed bg-status-closed bg-opacity-10'
-      case 'dead':
-        return 'text-status-dead bg-status-dead bg-opacity-10'
-      default:
-        return 'text-gray-600 bg-gray-100'
-    }
-  }
 
   const formatPhone = (phone: string) => {
     // Simple phone formatting - can be enhanced
@@ -54,20 +25,12 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick, onComplete }) => {
       className={`propello-card lead-card ${lead.lead_quality} cursor-pointer hover:shadow-lg transition-all duration-200 w-full max-w-full`}
       onClick={() => onClick?.(lead)}
     >
-      {/* Header with name and quality */}
+      {/* Header with name */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1 min-w-0">
           <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">
             {lead.name}
           </h3>
-          <div className="flex items-center space-x-2 flex-wrap">
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getQualityBadge(lead.lead_quality)}`}>
-              {lead.lead_quality.toUpperCase()}
-            </span>
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(lead.status)}`}>
-              {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
-            </span>
-          </div>
         </div>
         <div className="text-right flex-shrink-0 ml-2">
           <span className="text-sm text-gray-500">
