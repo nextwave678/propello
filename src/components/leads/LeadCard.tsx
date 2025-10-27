@@ -10,6 +10,18 @@ interface LeadCardProps {
 }
 
 const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick, onComplete }) => {
+  const getQualityBadge = (quality: string) => {
+    switch (quality) {
+      case 'hot':
+        return 'badge-hot'
+      case 'warm':
+        return 'badge-warm'
+      case 'cold':
+        return 'badge-cold'
+      default:
+        return 'badge-cold'
+    }
+  }
 
   const formatPhone = (phone: string) => {
     // Simple phone formatting - can be enhanced
@@ -25,12 +37,17 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick, onComplete }) => {
       className={`propello-card lead-card ${lead.lead_quality} cursor-pointer hover:shadow-lg transition-all duration-200 w-full max-w-full`}
       onClick={() => onClick?.(lead)}
     >
-      {/* Header with name */}
+      {/* Header with name and quality */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1 min-w-0">
           <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">
             {lead.name}
           </h3>
+          <div className="flex items-center space-x-2 flex-wrap">
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getQualityBadge(lead.lead_quality)}`}>
+              {lead.lead_quality.toUpperCase()}
+            </span>
+          </div>
         </div>
         <div className="text-right flex-shrink-0 ml-2">
           <span className="text-sm text-gray-500">
