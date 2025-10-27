@@ -7,9 +7,36 @@ export class SupabaseService {
     try {
       console.log('Attempting to fetch leads from Supabase...')
       
+      // Get current session instead of user
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      if (sessionError) {
+        console.error('Session error:', sessionError)
+        throw new Error('Session error')
+      }
+      
+      if (!session?.user) {
+        throw new Error('User not authenticated')
+      }
+
+      console.log('User authenticated:', session.user.email)
+
+      const { data: userProfile } = await supabase
+        .from('user_profiles')
+        .select('agent_phone_number')
+        .eq('user_id', session.user.id)
+        .single()
+
+      if (!userProfile) {
+        console.log('No user profile found, returning empty leads')
+        return []
+      }
+
+      console.log('Filtering leads for agent phone:', userProfile.agent_phone_number)
+      
       let query = supabase
         .from('leads')
         .select('*')
+        .eq('agent_phone_number', userProfile.agent_phone_number)
         .order('created_at', { ascending: false })
 
       if (filters) {
@@ -123,10 +150,45 @@ export class SupabaseService {
     try {
       console.log('Attempting to fetch analytics from Supabase...')
       
-      // Get all leads for analytics
+      // Get current session instead of user
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      if (sessionError) {
+        console.error('Session error:', sessionError)
+        throw new Error('Session error')
+      }
+      
+      if (!session?.user) {
+        throw new Error('User not authenticated')
+      }
+
+      console.log('User authenticated for analytics:', session.user.email)
+
+      const { data: userProfile } = await supabase
+        .from('user_profiles')
+        .select('agent_phone_number')
+        .eq('user_id', session.user.id)
+        .single()
+
+      if (!userProfile) {
+        console.log('No user profile found, returning empty analytics')
+        return {
+          totalLeads: 0,
+          leadsByQuality: { hot: 0, warm: 0, cold: 0 },
+          leadsByStatus: { new: 0, contacted: 0, qualified: 0, closed: 0, dead: 0 },
+          leadsByType: { buyer: 0, seller: 0 },
+          conversionRate: 0,
+          recentActivity: [],
+          qualityTrends: []
+        }
+      }
+
+      console.log('Filtering analytics for agent phone:', userProfile.agent_phone_number)
+      
+      // Get leads filtered by user's agent phone number
       const { data: leads, error: leadsError } = await supabase
         .from('leads')
         .select('*')
+        .eq('agent_phone_number', userProfile.agent_phone_number)
 
       if (leadsError) {
         console.error('Supabase error fetching leads for analytics:', leadsError)

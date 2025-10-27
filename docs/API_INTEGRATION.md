@@ -36,23 +36,42 @@ The AI agent should send data in this exact format:
   "lead_quality": "{{agent.quality}}",
   "call_duration": "{{agent.duration}}",
   "call_transcript": "{{agent.transcript}}",
-  "status": "new"
+  "status": "new",
+  "agent_phone_number": "{{agent.phone_number}}"
 }
 ```
+
+**CRITICAL**: The `agent_phone_number` field is **required** for proper lead routing to specific user accounts. This field must match the phone number assigned to the Retell AI agent and must correspond to a user's `agent_phone_number` in their profile.
+
+### Multi-User Lead Routing
+
+Propello uses the `agent_phone_number` field to route leads to the correct user account:
+
+1. **User Registration**: Each user provides their AI agent's phone number during signup
+2. **Agent Configuration**: Retell AI agents are configured with specific phone numbers
+3. **Webhook Routing**: When a lead is captured, the `agent_phone_number` in the webhook payload determines which user sees the lead
+4. **Data Isolation**: Row Level Security (RLS) ensures users only see leads with their `agent_phone_number`
+
+**Example Flow**:
+- User A signs up with agent phone `+1-555-123-4567`
+- User B signs up with agent phone `+1-555-987-6543`
+- Retell Agent 1 (phone: `+1-555-123-4567`) captures a lead → Lead appears in User A's dashboard
+- Retell Agent 2 (phone: `+1-555-987-6543`) captures a lead → Lead appears in User B's dashboard
 
 ### Field Mapping Guide
 
 | AI Agent Field | Database Column | Type | Required | Description |
 |----------------|-----------------|------|----------|-------------|
 | `agent.name` | `name` | TEXT | Yes | Lead's full name |
-| `agent.phone` | `phone` | TEXT | Yes | Phone number with country code |
-| `agent.email` | `email` | TEXT | No | Email address if provided |
+| `agent.phone` | `phone` | TEXT | Yes | Lead's phone number with country code |
+| `agent.email` | `email` | TEXT | No | Lead's email address if provided |
 | `agent.type` | `type` | TEXT | Yes | "buyer" or "seller" |
 | `agent.timeframe` | `timeframe` | TEXT | Yes | "immediately", "1-3 months", "3-6 months", "6+ months" |
 | `agent.property` | `property_details` | TEXT | No | Property preferences and details |
 | `agent.quality` | `lead_quality` | TEXT | Yes | "hot", "warm", or "cold" |
 | `agent.duration` | `call_duration` | INTEGER | No | Call duration in seconds |
 | `agent.transcript` | `call_transcript` | TEXT | No | Full call transcript |
+| `agent.phone_number` | `agent_phone_number` | TEXT | **Yes** | **AI agent's phone number for lead routing** |
 
 ## Supabase REST API Configuration
 
@@ -103,7 +122,8 @@ curl -X POST "https://[your-project-ref].supabase.co/rest/v1/leads" \
     "lead_quality": "hot",
     "call_duration": 180,
     "call_transcript": "Test call transcript",
-    "status": "new"
+    "status": "new",
+    "agent_phone_number": "+1-555-123-4567"
   }'
 ```
 
@@ -129,7 +149,8 @@ curl -X POST "https://[your-project-ref].supabase.co/rest/v1/leads" \
   "lead_quality": "hot",
   "call_duration": 240,
   "call_transcript": "Very interested, ready to buy within 30 days",
-  "status": "new"
+  "status": "new",
+  "agent_phone_number": "+1-555-123-4567"
 }
 
 // Warm Seller Lead
@@ -143,7 +164,8 @@ curl -X POST "https://[your-project-ref].supabase.co/rest/v1/leads" \
   "lead_quality": "warm",
   "call_duration": 180,
   "call_transcript": "Considering selling, wants market analysis",
-  "status": "new"
+  "status": "new",
+  "agent_phone_number": "+1-555-987-6543"
 }
 
 // Cold Lead
@@ -157,7 +179,8 @@ curl -X POST "https://[your-project-ref].supabase.co/rest/v1/leads" \
   "lead_quality": "cold",
   "call_duration": 120,
   "call_transcript": "Early stage, just gathering information",
-  "status": "new"
+  "status": "new",
+  "agent_phone_number": "+1-555-456-7890"
 }
 ```
 
@@ -340,6 +363,7 @@ GET /leads?select=*&status=eq.new
 ---
 
 *This integration guide ensures reliable data flow from AI agents to Propello dashboard.*
+
 
 
 

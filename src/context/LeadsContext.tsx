@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode, useCa
 import { Lead, LeadFilters, AnalyticsData } from '../types/lead.types'
 import { SupabaseService } from '../services/supabaseService'
 import { MockDataService } from '../services/mockDataService'
+import { useAuth } from './AuthContext'
 import toast from 'react-hot-toast'
 
 interface LeadsContextType {
@@ -35,6 +36,9 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
+  
+  // Get auth state to wait for authentication
+  const { isAuthenticated, loading: authLoading } = useAuth()
 
   const refreshLeads = useCallback(async (filters?: LeadFilters) => {
     try {
@@ -112,26 +116,36 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
   }, [])
 
   useEffect(() => {
-    refreshLeads()
-    getAnalytics()
-
-    // Set up real-time subscriptions
-    const leadsSubscription = SupabaseService.subscribeToLeads((payload) => {
-      console.log('Real-time leads update:', payload)
+    // Only fetch data when auth is loaded and user is authenticated
+    if (!authLoading && isAuthenticated) {
+      console.log('Auth ready, fetching leads and analytics...')
       refreshLeads()
       getAnalytics()
-    })
 
-    const activitiesSubscription = SupabaseService.subscribeToActivities((payload) => {
-      console.log('Real-time activities update:', payload)
-      getAnalytics()
-    })
+      // Set up real-time subscriptions
+      const leadsSubscription = SupabaseService.subscribeToLeads((payload) => {
+        console.log('Real-time leads update:', payload)
+        refreshLeads()
+        getAnalytics()
+      })
 
-    return () => {
-      leadsSubscription.unsubscribe()
-      activitiesSubscription.unsubscribe()
+      const activitiesSubscription = SupabaseService.subscribeToActivities((payload) => {
+        console.log('Real-time activities update:', payload)
+        getAnalytics()
+      })
+
+      return () => {
+        leadsSubscription.unsubscribe()
+        activitiesSubscription.unsubscribe()
+      }
+    } else if (!authLoading && !isAuthenticated) {
+      // User is not authenticated, clear data
+      console.log('User not authenticated, clearing leads data')
+      setLeads([])
+      setAnalytics(null)
+      setLoading(false)
     }
-  }, [refreshLeads, getAnalytics])
+  }, [refreshLeads, getAnalytics, authLoading, isAuthenticated])
 
   const value: LeadsContextType = {
     leads,

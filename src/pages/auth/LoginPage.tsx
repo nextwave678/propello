@@ -31,12 +31,21 @@ const LoginPage: React.FC = () => {
     } catch (error: any) {
       console.error('Login error:', error)
       
-      if (error.message?.includes('Invalid login credentials')) {
+      // Display specific error messages based on error type
+      if (error.message?.includes('Invalid email or password')) {
         toast.error('Invalid email or password')
       } else if (error.message?.includes('Email not confirmed')) {
         toast.error('Please check your email and confirm your account')
+      } else if (error.message?.includes('Account setup incomplete')) {
+        toast.error('Account setup incomplete. Please contact support.')
+      } else if (error.message?.includes('Authentication service temporarily unavailable')) {
+        toast.error('Authentication service temporarily unavailable. Please try again.')
+      } else if (error.message?.includes('Network error')) {
+        toast.error('Network error. Please check your connection and try again.')
+      } else if (error.message?.includes('No user data returned')) {
+        toast.error('Login failed. Please try again or contact support.')
       } else {
-        toast.error('Login failed. Please try again.')
+        toast.error(`Login failed: ${error.message || 'Unknown error'}`)
       }
     } finally {
       setLoading(false)

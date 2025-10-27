@@ -48,29 +48,76 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Login function
   const login = async (email: string, password: string): Promise<void> => {
     try {
+      console.log('Starting login process for email:', email)
+      
+      // Check Supabase connection first
+      const { data: connectionTest } = await supabase.auth.getSession()
+      console.log('Supabase connection test:', connectionTest ? 'Connected' : 'Failed')
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       })
 
+      console.log('Supabase auth response:', {
+        hasData: !!data,
+        hasUser: !!data?.user,
+        hasError: !!error,
+        errorCode: error?.code,
+        errorMessage: error?.message
+      })
+
       if (error) {
+        console.error('Supabase auth error details:', {
+          code: error.code,
+          message: error.message,
+          status: error.status,
+          name: error.name
+        })
         throw error
       }
 
       if (!data.user) {
+        console.error('No user data returned from Supabase auth')
         throw new Error('No user data returned')
       }
 
+      console.log('Auth successful, loading user profile for user ID:', data.user.id)
+
       // Load user profile
       const userProfile = await loadUserProfile(data.user.id)
+      console.log('User profile loaded:', userProfile ? 'Success' : 'Failed')
+      
       if (!userProfile) {
-        throw new Error('User profile not found')
+        console.error('User profile not found for user ID:', data.user.id)
+        throw new Error('User profile not found. Please contact support.')
       }
 
+      console.log('Login successful, setting user and profile')
       setUser(data.user)
       setProfile(userProfile)
     } catch (error: any) {
-      console.error('Login error:', error)
+      console.error('Login error details:', {
+        message: error.message,
+        code: error.code,
+        status: error.status,
+        name: error.name,
+        stack: error.stack
+      })
+      
+      // Re-throw with more specific error messages
+      if (error.message?.includes('Invalid login credentials')) {
+        throw new Error('Invalid email or password')
+      } else if (error.message?.includes('Email not confirmed')) {
+        throw new Error('Please check your email and confirm your account')
+      } else if (error.message?.includes('User profile not found')) {
+        throw new Error('Account setup incomplete. Please contact support.')
+      } else if (error.code === 'PGRST301') {
+        throw new Error('Authentication service temporarily unavailable')
+      } else if (error.message?.includes('fetch')) {
+        throw new Error('Network error. Please check your connection.')
+      }
+      
       throw error
     }
   }

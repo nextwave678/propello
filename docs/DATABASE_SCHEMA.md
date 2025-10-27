@@ -2,7 +2,16 @@
 
 ## Overview
 
-The Propello database is built on Supabase (PostgreSQL) with two main tables designed to capture and track real estate leads from AI phone agents. The schema supports real-time updates, comprehensive lead tracking, and scalable analytics.
+The Propello database is built on Supabase (PostgreSQL) with two main tables designed to capture and track real estate leads from AI phone agents. The schema supports real-time updates, comprehensive lead tracking, scalable analytics, and **multi-user lead routing** via the `agent_phone_number` field.
+
+## Multi-User Architecture
+
+Propello supports multiple users by routing leads based on the `agent_phone_number` field:
+
+- **User Registration**: Each user provides their AI agent's phone number during signup
+- **Lead Routing**: Webhooks include `agent_phone_number` to route leads to correct users
+- **Data Isolation**: Row Level Security (RLS) ensures users only see their own leads
+- **Single Endpoint**: All agents use the same webhook endpoint - routing happens via `agent_phone_number`
 
 ## Tables
 
@@ -42,7 +51,10 @@ CREATE TABLE leads (
   notes TEXT[] DEFAULT '{}',
   tags TEXT[] DEFAULT '{}',
   assigned_to UUID REFERENCES auth.users(id),
-  is_archived BOOLEAN DEFAULT FALSE
+  is_archived BOOLEAN DEFAULT FALSE,
+  
+  -- Multi-User Routing (CRITICAL)
+  agent_phone_number TEXT -- Routes leads to specific user accounts
 );
 ```
 
@@ -205,6 +217,13 @@ CREATE POLICY "Users can update activities"
 
 ## Data Types Reference
 
+### Agent Phone Number (CRITICAL)
+- **Format**: `+1-555-123-4567` (include country code and dashes)
+- **Purpose**: Routes leads to specific user accounts
+- **Required**: Must be included in all webhook payloads
+- **Uniqueness**: Each user must have a unique agent_phone_number
+- **Matching**: Must exactly match the Retell AI agent's phone number
+
 ### Lead Quality Values
 - **hot**: High priority, immediate action needed
 - **warm**: Moderate priority, follow up within 24-48 hours
@@ -284,6 +303,7 @@ WHERE is_archived = false;
 ---
 
 *This schema is designed to scale with Propello's growth while maintaining data integrity and performance.*
+
 
 
 

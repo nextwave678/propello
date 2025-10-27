@@ -16,7 +16,8 @@ This guide covers the complete deployment process for Propello, from local devel
 - **GitHub**: For version control and CI/CD
 - **Supabase**: For database and real-time features
 - **Vercel**: For hosting and deployment
-- **Make.com**: For webhook integration
+- **Retell AI**: For AI agent integration (recommended)
+- **Make.com**: For webhook integration (alternative)
 
 ## Local Development Setup
 
@@ -279,7 +280,30 @@ VITE_SUPABASE_ANON_KEY = [your-supabase-anon-key]
 3. Configure DNS records as instructed
 4. Enable SSL certificate
 
-## Make.com Webhook Integration
+## Retell AI Integration (Recommended)
+
+### 1. Create Retell AI Account
+
+1. Go to [Retell AI](https://retellai.com)
+2. Sign up for an account
+3. Create your first AI agent
+
+### 2. Configure Webhook
+
+1. In Retell dashboard, go to your agent settings
+2. Navigate to **Webhooks** section
+3. Configure webhook endpoint: `https://[your-project-ref].supabase.co/rest/v1/leads`
+4. Set up headers and payload as described in [RETELL_WEBHOOK_SETUP.md](RETELL_WEBHOOK_SETUP.md)
+
+### 3. Test Integration
+
+1. Make a test call to your Retell agent
+2. Verify lead appears in Propello dashboard
+3. Check that lead is routed to correct user account
+
+**Important**: Ensure your webhook payload includes the `agent_phone_number` field for proper lead routing.
+
+## Make.com Webhook Integration (Alternative)
 
 ### 1. Create Make.com Account
 
@@ -530,6 +554,7 @@ git push --force origin main
 ---
 
 *This deployment guide ensures Propello is properly configured, secure, and ready for production use.*
+
 
 
 

@@ -68,20 +68,52 @@ npm run dev
 supabase gen types typescript --project-id [your-project-id] > src/lib/database.types.ts
 ```
 
-## Make.com Integration
+## AI Agent Integration
 
-Configure your Make.com webhook to send data to:
-```
-POST https://your-project-ref.supabase.co/rest/v1/leads
-```
+### Retell AI Setup (Recommended)
 
-With headers:
+Propello integrates directly with Retell AI agents. Each agent uses the same webhook endpoint but includes its unique `agent_phone_number` to route leads to the correct user account.
+
+**Webhook Endpoint**: `https://your-project-ref.supabase.co/rest/v1/leads`
+
+**Required Headers**:
 ```
 apikey: your-supabase-anon-key
 Authorization: Bearer your-supabase-anon-key
 Content-Type: application/json
 Prefer: return=representation
 ```
+
+**Critical**: The webhook payload **must** include the `agent_phone_number` field for proper lead routing:
+
+```json
+{
+  "name": "{{caller_name}}",
+  "phone": "{{caller_phone}}",
+  "email": "{{caller_email}}",
+  "type": "{{lead_type}}",
+  "timeframe": "{{timeframe}}",
+  "property_details": "{{property_details}}",
+  "lead_quality": "{{lead_quality}}",
+  "call_duration": "{{call_duration}}",
+  "call_transcript": "{{call_transcript}}",
+  "status": "new",
+  "agent_phone_number": "+1-555-123-4567"
+}
+```
+
+See [docs/RETELL_WEBHOOK_SETUP.md](docs/RETELL_WEBHOOK_SETUP.md) for complete setup instructions.
+
+### Multi-User Lead Routing
+
+- Each user provides their AI agent's phone number during signup
+- Leads are automatically routed to users based on the `agent_phone_number` field
+- Row Level Security ensures users only see their own leads
+- All agents use the same webhook endpoint - routing happens via the `agent_phone_number` field
+
+### Make.com Integration (Alternative)
+
+If using Make.com instead of Retell AI, configure your webhook to send data to the same endpoint with the same payload structure including `agent_phone_number`.
 
 ## Deployment
 
@@ -151,6 +183,7 @@ For support, email support@propello.com or create an issue on GitHub.
 ---
 
 **Propello**: Propelling real estate professionals to success with AI-powered lead management.
+
 
 
 
