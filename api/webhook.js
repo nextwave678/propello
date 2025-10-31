@@ -31,7 +31,7 @@ export default async function handler(req, res) {
         // Extract lead data from Retell webhook
         const leadData = {
           name: call.retell_llm_dynamic_variables?.customer_name || 'Unknown',
-          phone: call.from_number,
+          phone: call.from_number || call.retell_llm_dynamic_variables?.customer_phone || '000-000-0000', // Required field, provide fallback
           email: call.retell_llm_dynamic_variables?.customer_email || '',
           type: call.retell_llm_dynamic_variables?.lead_type || 'buyer',
           timeframe: call.retell_llm_dynamic_variables?.timeframe || 'Unknown',
@@ -40,7 +40,13 @@ export default async function handler(req, res) {
           call_duration: Math.floor((call.end_timestamp - call.start_timestamp) / 1000), // Convert to seconds
           call_transcript: call.transcript || '',
           status: 'new',
-          agent_phone_number: call.to_number // The agent's phone number
+          agent_phone_number: call.to_number || '' // The agent's phone number
+        }
+        
+        // Validate required fields before inserting
+        if (!leadData.phone || leadData.phone === '000-000-0000') {
+          console.error('Missing phone number in webhook payload:', call)
+          return res.status(400).json({ error: 'Missing required field: phone' })
         }
 
         console.log('Prepared lead data:', JSON.stringify(leadData, null, 2))
