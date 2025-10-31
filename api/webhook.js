@@ -29,23 +29,49 @@ export default async function handler(req, res) {
         console.log('Call analyzed event received', call.call_id)
         
         // Extract lead data from Retell webhook
+        // Handle both phone_call (from_number/to_number) and web_call (custom_analysis_data)
+        const customData = call.call_analysis?.custom_analysis_data || {}
+        const dynamicVars = call.retell_llm_dynamic_variables || {}
+        
+        // Get phone number from multiple possible sources
+        const phoneNumber = call.from_number || 
+                           dynamicVars.customer_phone || 
+                           customData.number || 
+                           '000-000-0000'
+        
         const leadData = {
-          name: call.retell_llm_dynamic_variables?.customer_name || 'Unknown',
-          phone: call.from_number || call.retell_llm_dynamic_variables?.customer_phone || '000-000-0000', // Required field, provide fallback
-          email: call.retell_llm_dynamic_variables?.customer_email || '',
-          type: call.retell_llm_dynamic_variables?.lead_type || 'buyer',
-          timeframe: call.retell_llm_dynamic_variables?.timeframe || 'Unknown',
-          property_details: call.retell_llm_dynamic_variables?.property_details || '',
-          lead_quality: call.retell_llm_dynamic_variables?.lead_quality || 'cold',
-          call_duration: Math.floor((call.end_timestamp - call.start_timestamp) / 1000), // Convert to seconds
+          name: customData.name || 
+                dynamicVars.customer_name || 
+                'Unknown',
+          phone: phoneNumber, // Required field
+          email: customData.email || 
+                 dynamicVars.customer_email || 
+                 '',
+          type: customData.type || 
+                dynamicVars.lead_type || 
+                'buyer',
+          timeframe: customData.timeframe || 
+                     dynamicVars.timeframe || 
+                     'Unknown',
+          property_details: customData.property_details || 
+                           dynamicVars.property_details || 
+                           '',
+          lead_quality: customData.lead_quality || 
+                       dynamicVars.lead_quality || 
+                       'cold',
+          call_duration: call.duration_ms ? Math.floor(call.duration_ms / 1000) : 
+                         Math.floor((call.end_timestamp - call.start_timestamp) / 1000), // Convert to seconds
           call_transcript: call.transcript || '',
           status: 'new',
-          agent_phone_number: call.to_number || '' // The agent's phone number
+          agent_phone_number: customData['agent_phone-number'] || 
+                             customData.agent_phone_number ||
+                             call.to_number || 
+                             '' // The agent's phone number
         }
         
         // Validate required fields before inserting
         if (!leadData.phone || leadData.phone === '000-000-0000') {
-          console.error('Missing phone number in webhook payload:', call)
+          console.error('Missing phone number in webhook payload:', JSON.stringify(call, null, 2))
           return res.status(400).json({ error: 'Missing required field: phone' })
         }
 
