@@ -39,6 +39,12 @@ export default async function handler(req, res) {
                            customData.number || 
                            '000-000-0000'
         
+        // Normalize type field - convert "buying" to "buyer", "selling" to "seller"
+        const rawType = customData.type || dynamicVars.lead_type || 'buyer'
+        const normalizedType = rawType === 'buying' ? 'buyer' : 
+                              rawType === 'selling' ? 'seller' : 
+                              rawType.toLowerCase()
+        
         const leadData = {
           name: customData.name || 
                 dynamicVars.customer_name || 
@@ -47,9 +53,7 @@ export default async function handler(req, res) {
           email: customData.email || 
                  dynamicVars.customer_email || 
                  '',
-          type: customData.type || 
-                dynamicVars.lead_type || 
-                'buyer',
+          type: normalizedType === 'buyer' || normalizedType === 'seller' ? normalizedType : 'buyer',
           timeframe: customData.timeframe || 
                      dynamicVars.timeframe || 
                      'Unknown',
