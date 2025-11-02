@@ -1,10 +1,32 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useLeads } from '../context/LeadsContext'
 import LeadCard from '../components/leads/LeadCard'
+import CompletionModal from '../components/leads/CompletionModal'
+import { Lead } from '../types/lead.types'
 import { TrendingUp, Users, Clock, AlertCircle } from 'lucide-react'
 
 const Dashboard: React.FC = () => {
-  const { leads, loading, error, analytics } = useLeads()
+  const { leads, loading, error, analytics, markLeadComplete } = useLeads()
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const openCompletionModal = (lead: Lead) => {
+    setSelectedLead(lead)
+    setIsModalOpen(true)
+  }
+
+  const handleComplete = async (
+    leadId: string,
+    completionStatus: 'successful' | 'on_the_fence' | 'unsuccessful'
+  ) => {
+    try {
+      await markLeadComplete(leadId, completionStatus)
+      setIsModalOpen(false)
+      setSelectedLead(null)
+    } catch (err) {
+      console.error('Failed to update lead status:', err)
+    }
+  }
 
   if (loading) {
     return (
@@ -125,6 +147,7 @@ const Dashboard: React.FC = () => {
               <LeadCard
                 key={lead.id}
                 lead={lead}
+                onComplete={openCompletionModal}
               />
             ))}
           </div>
@@ -157,6 +180,16 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       )}
+
+      <CompletionModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false)
+          setSelectedLead(null)
+        }}
+        lead={selectedLead}
+        onComplete={handleComplete}
+      />
     </div>
   )
 }
