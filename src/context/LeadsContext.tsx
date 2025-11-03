@@ -89,6 +89,8 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
       }
       const updatedLead = await SupabaseService.updateLead(leadId, updates)
       setLeads(prev => prev.map(lead => lead.id === leadId ? updatedLead : lead))
+      // Refresh leads to ensure all pages see the update
+      await refreshLeads()
       toast.success(`Lead marked as ${completionStatus.replace('_', ' ')}`)
     } catch (err) {
       console.log('Supabase update failed, updating locally:', err)

@@ -4,9 +4,10 @@ import LeadCard from '../components/leads/LeadCard'
 import CompletionModal from '../components/leads/CompletionModal'
 import { Lead } from '../types/lead.types'
 import { TrendingUp, Users, Clock, AlertCircle } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 const Dashboard: React.FC = () => {
-  const { leads, loading, error, analytics, markLeadComplete } = useLeads()
+  const { leads, loading, error, analytics, markLeadComplete, refreshLeads } = useLeads()
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -25,6 +26,7 @@ const Dashboard: React.FC = () => {
       setSelectedLead(null)
     } catch (err) {
       console.error('Failed to update lead status:', err)
+      toast.error('Failed to update lead status. Please try again.')
     }
   }
 

@@ -11,11 +11,10 @@ const OnTheFence: React.FC = () => {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  // Filter on the fence leads (explicit completion_status match)
-  const onTheFenceLeads = useMemo(
-    () => leads.filter((lead) => lead.completion_status === 'on_the_fence'),
-    [leads]
-  )
+  // Filter on the fence leads (strictly must be 'on_the_fence' - no null/undefined/empty)
+  const onTheFenceLeads = useMemo(() => {
+    return leads.filter((lead) => lead.completion_status === 'on_the_fence')
+  }, [leads])
 
   // Apply search filter
   const filteredLeads = useMemo(() => {

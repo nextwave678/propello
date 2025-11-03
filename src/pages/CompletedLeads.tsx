@@ -12,11 +12,13 @@ const CompletedLeads: React.FC = () => {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  // Filter completed leads (requires completion_status)
-  const completedLeads = useMemo(
-    () => leads.filter((lead) => !!lead.completion_status),
-    [leads]
-  )
+  // Filter completed leads (must have valid completion_status - not null, undefined, or empty string)
+  const completedLeads = useMemo(() => {
+    return leads.filter((lead) => {
+      const status = lead.completion_status
+      return status === 'successful' || status === 'on_the_fence' || status === 'unsuccessful'
+    })
+  }, [leads])
 
   // Apply search and status filters
   const filteredLeads = useMemo(() => {

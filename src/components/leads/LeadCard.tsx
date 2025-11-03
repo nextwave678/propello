@@ -137,12 +137,14 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick, onComplete }) => {
       )}
 
       {/* Completion Button */}
-      {!lead.completion_status && (
+      {(!lead.completion_status || lead.completion_status === null || lead.completion_status === '') && onComplete && (
         <div className="flex justify-end mt-4">
           <button
+            type="button"
             onClick={(e) => {
+              e.preventDefault()
               e.stopPropagation()
-              onComplete?.(lead)
+              onComplete(lead)
             }}
             className="flex items-center space-x-2 px-3 py-2 bg-propello-blue text-white text-sm font-medium rounded-lg hover:bg-propello-blue-600 transition-colors duration-200"
           >
@@ -153,7 +155,11 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick, onComplete }) => {
       )}
 
       {/* Completion Status Badge */}
-      {lead.completion_status && (
+      {lead.completion_status && 
+       lead.completion_status !== '' &&
+       (lead.completion_status === 'successful' || 
+        lead.completion_status === 'on_the_fence' || 
+        lead.completion_status === 'unsuccessful') && (
         <div className="flex justify-end mt-4">
           <span className={`px-3 py-1 rounded-full text-xs font-medium ${
             lead.completion_status === 'successful' 
