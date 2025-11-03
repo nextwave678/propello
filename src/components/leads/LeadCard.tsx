@@ -137,7 +137,7 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick, onComplete }) => {
       )}
 
       {/* Completion Button */}
-      {(!lead.completion_status || lead.completion_status === null || lead.completion_status === '') && onComplete && (
+      {!lead.completion_status && onComplete && (
         <div className="flex justify-end mt-4">
           <button
             type="button"
@@ -155,11 +155,7 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onClick, onComplete }) => {
       )}
 
       {/* Completion Status Badge */}
-      {lead.completion_status && 
-       lead.completion_status !== '' &&
-       (lead.completion_status === 'successful' || 
-        lead.completion_status === 'on_the_fence' || 
-        lead.completion_status === 'unsuccessful') && (
+      {lead.completion_status && (
         <div className="flex justify-end mt-4">
           <span className={`px-3 py-1 rounded-full text-xs font-medium ${
             lead.completion_status === 'successful' 

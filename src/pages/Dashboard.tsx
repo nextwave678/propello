@@ -7,7 +7,7 @@ import { TrendingUp, Users, Clock, AlertCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const Dashboard: React.FC = () => {
-  const { leads, loading, error, analytics, markLeadComplete, refreshLeads } = useLeads()
+  const { leads, loading, error, analytics, markLeadComplete } = useLeads()
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
