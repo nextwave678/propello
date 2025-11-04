@@ -3,6 +3,8 @@ import { User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { AuthContextType, UserProfile, SignupData } from '../types/auth.types'
 
+// Auth context for managing user authentication state
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const useAuth = () => {
