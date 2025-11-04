@@ -215,27 +215,60 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const initializeAuth = async () => {
       try {
+        console.log('Initializing auth...')
+        
         // Get initial session
         const { data: { session }, error } = await supabase.auth.getSession()
         
         if (error) {
           console.error('Error getting session:', error)
+          // Still set loading to false even on error
+          if (mounted) {
+            setLoading(false)
+          }
           return
         }
 
         if (session?.user && mounted) {
+          console.log('Session found for user:', session.user.email)
           setUser(session.user)
           
-          // Load user profile
-          const userProfile = await loadUserProfile(session.user.id)
-          if (userProfile && mounted) {
-            setProfile(userProfile)
+          // Load user profile with timeout
+          try {
+            const userProfile = await Promise.race<UserProfile | null>([
+              loadUserProfile(session.user.id),
+              new Promise<never>((_, reject) => 
+                setTimeout(() => reject(new Error('Profile load timeout')), 10000)
+              )
+            ])
+            
+            if (userProfile && mounted) {
+              console.log('Profile loaded successfully')
+              setProfile(userProfile)
+            } else if (mounted) {
+              console.warn('No profile found for user, logging out')
+              // If no profile, clear the session
+              await supabase.auth.signOut()
+              setUser(null)
+              setProfile(null)
+            }
+          } catch (profileError) {
+            console.error('Error loading profile:', profileError)
+            // Clear auth state if profile fails to load
+            if (mounted) {
+              await supabase.auth.signOut()
+              setUser(null)
+              setProfile(null)
+            }
           }
+        } else {
+          console.log('No active session found')
         }
       } catch (error) {
         console.error('Error initializing auth:', error)
       } finally {
         if (mounted) {
+          console.log('Auth initialization complete, setting loading to false')
           setLoading(false)
         }
       }
@@ -246,22 +279,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event)
         if (!mounted) return
 
-        if (event === 'SIGNED_IN' && session?.user) {
-          setUser(session.user)
-          
-          // Load user profile
-          const userProfile = await loadUserProfile(session.user.id)
-          if (userProfile) {
-            setProfile(userProfile)
+        try {
+          if (event === 'SIGNED_IN' && session?.user) {
+            setUser(session.user)
+            
+            // Load user profile with timeout
+            try {
+              const userProfile = await Promise.race<UserProfile | null>([
+                loadUserProfile(session.user.id),
+                new Promise<never>((_, reject) => 
+                  setTimeout(() => reject(new Error('Profile load timeout')), 10000)
+                )
+              ])
+              
+              if (userProfile) {
+                setProfile(userProfile)
+              } else {
+                console.warn('No profile found after sign in')
+                await supabase.auth.signOut()
+                setUser(null)
+                setProfile(null)
+              }
+            } catch (profileError) {
+              console.error('Error loading profile on sign in:', profileError)
+              await supabase.auth.signOut()
+              setUser(null)
+              setProfile(null)
+            }
+          } else if (event === 'SIGNED_OUT') {
+            setUser(null)
+            setProfile(null)
+          } else if (event === 'TOKEN_REFRESHED') {
+            console.log('Token refreshed')
+          } else if (event === 'USER_UPDATED') {
+            console.log('User updated')
           }
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null)
-          setProfile(null)
+        } catch (error) {
+          console.error('Error handling auth state change:', error)
+        } finally {
+          setLoading(false)
         }
-
-        setLoading(false)
       }
     )
 
