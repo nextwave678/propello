@@ -122,21 +122,36 @@ export const LeadsProvider: React.FC<LeadsProviderProps> = ({ children }) => {
       refreshLeads()
       getAnalytics()
 
-      // Set up real-time subscriptions
-      const leadsSubscription = SupabaseService.subscribeToLeads((payload) => {
-        console.log('Real-time leads update:', payload)
-        refreshLeads()
-        getAnalytics()
-      })
+      // Set up real-time subscriptions (async functions)
+      let leadsSubscription: { unsubscribe: () => void } | null = null
+      let activitiesSubscription: { unsubscribe: () => void } | null = null
 
-      const activitiesSubscription = SupabaseService.subscribeToActivities((payload) => {
-        console.log('Real-time activities update:', payload)
-        getAnalytics()
-      })
+      const setupSubscriptions = async () => {
+        try {
+          leadsSubscription = await SupabaseService.subscribeToLeads((payload) => {
+            console.log('Real-time leads update:', payload)
+            refreshLeads()
+            getAnalytics()
+          })
+
+          activitiesSubscription = await SupabaseService.subscribeToActivities((payload) => {
+            console.log('Real-time activities update:', payload)
+            getAnalytics()
+          })
+        } catch (error) {
+          console.error('Failed to set up real-time subscriptions:', error)
+        }
+      }
+
+      setupSubscriptions()
 
       return () => {
-        leadsSubscription.unsubscribe()
-        activitiesSubscription.unsubscribe()
+        if (leadsSubscription) {
+          leadsSubscription.unsubscribe()
+        }
+        if (activitiesSubscription) {
+          activitiesSubscription.unsubscribe()
+        }
       }
     } else if (!authLoading && !isAuthenticated) {
       // User is not authenticated, clear data

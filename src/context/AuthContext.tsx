@@ -130,13 +130,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Signup function
   const signup = async (signupData: SignupData): Promise<void> => {
     try {
-      // Create auth user
+      console.log('Starting signup process for:', signupData.email)
+      
+      // Create auth user with metadata
+      // The metadata will be used by the database trigger to create the profile
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: signupData.email,
-        password: signupData.password
+        password: signupData.password,
+        options: {
+          data: {
+            full_name: signupData.fullName,
+            company_name: signupData.companyName || null,
+            agent_phone_number: signupData.agentPhoneNumber
+          }
+        }
       })
 
       if (authError) {
+        console.error('Auth signup error:', authError)
         throw authError
       }
 
@@ -144,41 +155,53 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error('No user data returned from signup')
       }
 
-      // Create user profile
-      const { error: profileError } = await supabase
+      console.log('User created successfully:', authData.user.id)
+      
+      // Wait for the database trigger to create the profile
+      // The trigger runs automatically, but we need to give it a moment
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Now update the profile with the full information
+      // This ensures all fields are populated correctly
+      const { error: updateError } = await supabase
         .from('user_profiles')
-        .insert({
-          user_id: authData.user.id,
-          email: signupData.email,
+        .update({
           full_name: signupData.fullName,
           company_name: signupData.companyName || null,
-          agent_phone_number: signupData.agentPhoneNumber,
-          plan: 'free',
-          is_active: true
+          agent_phone_number: signupData.agentPhoneNumber
         })
+        .eq('user_id', authData.user.id)
 
-      if (profileError) {
-        // If profile creation fails, we should clean up the auth user
-        // But for now, just throw the error
-        throw profileError
+      if (updateError) {
+        console.error('Error updating profile:', updateError)
+        // Don't throw - the profile exists, just might have incomplete data
       }
+
+      // Load the profile
+      const userProfile = await loadUserProfile(authData.user.id)
+      
+      if (!userProfile) {
+        console.error('Profile not found after signup - trigger may have failed')
+        throw new Error('Account created but profile setup failed. Please contact support.')
+      }
+
+      console.log('Signup complete, profile loaded:', userProfile)
 
       // Set user and profile
       setUser(authData.user)
-      setProfile({
-        id: authData.user.id,
-        user_id: authData.user.id,
-        created_at: new Date().toISOString(),
-        email: signupData.email,
-        full_name: signupData.fullName,
-        company_name: signupData.companyName || null,
-        agent_phone_number: signupData.agentPhoneNumber,
-        agent_id: null,
-        plan: 'free',
-        is_active: true
-      })
+      setProfile(userProfile)
     } catch (error: any) {
       console.error('Signup error:', error)
+      
+      // Provide user-friendly error messages
+      if (error.message?.includes('User already registered')) {
+        throw new Error('An account with this email already exists')
+      } else if (error.message?.includes('agent_phone_number') && error.message?.includes('unique')) {
+        throw new Error('This agent phone number is already in use')
+      } else if (error.message?.includes('Password')) {
+        throw new Error('Password must be at least 8 characters')
+      }
+      
       throw error
     }
   }

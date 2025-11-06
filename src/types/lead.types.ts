@@ -43,6 +43,17 @@ export interface LeadFilters {
   is_archived?: boolean
   completion_status?: 'successful' | 'on_the_fence' | 'unsuccessful'
   is_completed?: boolean
+  // Pagination
+  page?: number
+  pageSize?: number
+}
+
+export interface PaginatedLeadsResponse {
+  data: Lead[]
+  count: number
+  page: number
+  pageSize: number
+  totalPages: number
 }
 
 export interface AnalyticsData {

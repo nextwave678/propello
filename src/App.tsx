@@ -15,6 +15,7 @@ import { LeadsProvider } from './context/LeadsContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import LoadingAnimation from './components/common/LoadingAnimation'
+import ErrorBoundary from './components/common/ErrorBoundary'
 
 // Component to handle auth redirects
 const AuthRedirectHandler: React.FC = () => {
@@ -55,77 +56,79 @@ function App() {
   }
 
   return (
-    <AuthProvider>
-      <LeadsProvider>
-        <Router>
-          <div className="min-h-screen bg-navy-50">
-            <Routes>
-              {/* Auth Routes */}
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              
-              {/* Protected Routes */}
-              <Route path="/" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Dashboard />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/on-the-fence" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <OnTheFence />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/completed-leads" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <CompletedLeads />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/uncompleted-leads" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <UncompletedLeads />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/leads" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Leads />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/analytics" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Analytics />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              
-              {/* Catch all route */}
-              <Route path="*" element={<AuthRedirectHandler />} />
-            </Routes>
-            <Toaster 
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#363636',
-                  color: '#fff',
-                },
-              }}
-            />
-          </div>
-        </Router>
-      </LeadsProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <LeadsProvider>
+          <Router>
+            <div className="min-h-screen bg-navy-50">
+              <Routes>
+                {/* Auth Routes */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignupPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                
+                {/* Protected Routes */}
+                <Route path="/" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Dashboard />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/on-the-fence" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <OnTheFence />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/completed-leads" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <CompletedLeads />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/uncompleted-leads" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <UncompletedLeads />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/leads" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Leads />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/analytics" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Analytics />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                
+                {/* Catch all route */}
+                <Route path="*" element={<AuthRedirectHandler />} />
+              </Routes>
+              <Toaster 
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: '#363636',
+                    color: '#fff',
+                  },
+                }}
+              />
+            </div>
+          </Router>
+        </LeadsProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   )
 }
 

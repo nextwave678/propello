@@ -1,11 +1,54 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://yzxbjcqgokzbqkiiqnar.supabase.co'
+// Use environment variables for Supabase connection
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
 // Use service role key for admin access (bypasses RLS)
 // Webhook needs admin access since it's not authenticated as a user
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6eGJqY3Fnb2t6YnFraWlxbmFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4NjUxMzEsImV4cCI6MjA3NjQ0MTEzMX0.buKrPEtLAsoNwLuc7j9hZZ7jS1S-jj8OHbFJCsE7rxk'
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY
+
+if (!supabaseUrl) {
+  throw new Error('Missing SUPABASE_URL or VITE_SUPABASE_URL environment variable')
+}
+
+if (!supabaseServiceKey) {
+  throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY or VITE_SUPABASE_ANON_KEY environment variable')
+}
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+// Validation helpers
+const validateEmail = (email) => {
+  if (!email) return true // Email is optional
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
+}
+
+const validatePhone = (phone) => {
+  if (!phone) return false // Phone is required
+  // Accept various phone formats
+  const phoneRegex = /^[\d\s\-\+\(\)]+$/
+  return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10
+}
+
+const normalizeValue = (value, allowedValues, defaultValue) => {
+  if (!value) return defaultValue
+  const normalized = value.toString().toLowerCase().trim()
+  return allowedValues.includes(normalized) ? normalized : defaultValue
+}
+
+// Idempotency cache (in-memory, consider Redis for production)
+const processedCalls = new Map()
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+// Clean up old cache entries periodically
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, timestamp] of processedCalls.entries()) {
+    if (now - timestamp > CACHE_TTL) {
+      processedCalls.delete(key)
+    }
+  }
+}, 60 * 1000) // Every minute
 
 export default async function handler(req, res) {
   // Only allow POST requests
@@ -15,6 +58,12 @@ export default async function handler(req, res) {
 
   try {
     const { event, call } = req.body
+    
+    // Validate basic structure
+    if (!event || !call) {
+      console.error('Invalid webhook payload: missing event or call')
+      return res.status(400).json({ error: 'Invalid payload structure' })
+    }
     
     console.log(`Received ${event} event for call ${call?.call_id}`)
     console.log('Full webhook payload:', JSON.stringify(req.body, null, 2))
@@ -30,6 +79,31 @@ export default async function handler(req, res) {
       case 'call_analyzed':
         console.log('Call analyzed event received', call.call_id)
         
+        // Idempotency check - prevent duplicate lead creation
+        const callId = call.call_id
+        if (!callId) {
+          console.error('Missing call_id in webhook payload')
+          return res.status(400).json({ error: 'Missing call_id' })
+        }
+        
+        if (processedCalls.has(callId)) {
+          console.log('Call already processed (idempotent):', callId)
+          return res.status(200).json({ message: 'Already processed', callId })
+        }
+        
+        // Check if lead already exists in database
+        const { data: existingLead } = await supabase
+          .from('leads')
+          .select('id')
+          .eq('call_transcript', call.transcript || '')
+          .limit(1)
+        
+        if (existingLead && existingLead.length > 0) {
+          console.log('Lead already exists in database for call:', callId)
+          processedCalls.set(callId, Date.now())
+          return res.status(200).json({ message: 'Lead already exists', callId })
+        }
+        
         // Extract lead data from Retell webhook
         // Handle both phone_call (from_number/to_number) and web_call (custom_analysis_data)
         const customData = call.call_analysis?.custom_analysis_data || {}
@@ -39,7 +113,14 @@ export default async function handler(req, res) {
         const phoneNumber = call.from_number || 
                            dynamicVars.customer_phone || 
                            customData.number || 
-                           '000-000-0000'
+                           customData.phone ||
+                           ''
+        
+        // Validate phone number
+        if (!validatePhone(phoneNumber)) {
+          console.error('Invalid or missing phone number:', phoneNumber)
+          return res.status(400).json({ error: 'Invalid phone number format' })
+        }
         
         const agentPhoneNumber = customData['agent_phone-number'] || 
                                 customData.agent_phone_number ||
@@ -64,49 +145,43 @@ export default async function handler(req, res) {
           }
         }
         
-        // Normalize type value to ensure it matches database constraint
-        const rawType = (customData.type || dynamicVars.lead_type || 'buyer').toLowerCase().trim()
-        const normalizedType = (rawType === 'buyer' || rawType === 'seller') ? rawType : 'buyer'
-        
-        if (rawType !== normalizedType) {
-          console.warn(`Type normalized from "${customData.type || dynamicVars.lead_type}" to "${normalizedType}"`)
+        // Extract and validate email
+        const emailValue = customData.email || dynamicVars.customer_email || ''
+        if (emailValue && !validateEmail(emailValue)) {
+          console.warn('Invalid email format, setting to empty:', emailValue)
         }
         
-        // Normalize lead_quality to ensure it matches database constraint
-        const rawQuality = (customData.lead_quality || dynamicVars.lead_quality || 'cold').toLowerCase().trim()
-        const normalizedQuality = (rawQuality === 'hot' || rawQuality === 'warm' || rawQuality === 'cold') ? rawQuality : 'cold'
+        // Normalize values using helper function
+        const normalizedType = normalizeValue(
+          customData.type || dynamicVars.lead_type,
+          ['buyer', 'seller'],
+          'buyer'
+        )
         
-        if (rawQuality !== normalizedQuality) {
-          console.warn(`Lead quality normalized from "${customData.lead_quality || dynamicVars.lead_quality}" to "${normalizedQuality}"`)
-        }
+        const normalizedQuality = normalizeValue(
+          customData.lead_quality || dynamicVars.lead_quality,
+          ['hot', 'warm', 'cold'],
+          'cold'
+        )
         
-        // Normalize status to ensure it matches database constraint
-        const rawStatus = (customData.status || dynamicVars.status || 'new').toLowerCase().trim()
-        const normalizedStatus = (rawStatus === 'new' || rawStatus === 'contacted' || rawStatus === 'qualified' || rawStatus === 'closed' || rawStatus === 'dead') ? rawStatus : 'new'
-        
-        if (rawStatus !== normalizedStatus) {
-          console.warn(`Status normalized from "${customData.status || dynamicVars.status}" to "${normalizedStatus}"`)
-        }
+        const normalizedStatus = normalizeValue(
+          customData.status || dynamicVars.status,
+          ['new', 'contacted', 'qualified', 'closed', 'dead'],
+          'new'
+        )
         
         const leadData = {
-          name: customData.name || 
-                dynamicVars.customer_name || 
-                'Unknown',
-          phone: phoneNumber, // Required field
-          email: customData.email || 
-                 dynamicVars.customer_email || 
-                 '',
+          name: (customData.name || dynamicVars.customer_name || 'Unknown').trim(),
+          phone: phoneNumber.trim(),
+          email: validateEmail(emailValue) ? emailValue.trim() : '',
           type: normalizedType,
-          timeframe: customData.timeframe || 
-                     dynamicVars.timeframe || 
-                     'Unknown',
-          property_details: customData.property_details || 
-                           dynamicVars.property_details || 
-                           '',
+          timeframe: (customData.timeframe || dynamicVars.timeframe || 'Unknown').trim(),
+          property_details: (customData.property_details || dynamicVars.property_details || '').trim(),
           lead_quality: normalizedQuality,
           call_duration: call.duration_ms ? Math.floor(call.duration_ms / 1000) : 
-                         Math.floor((call.end_timestamp - call.start_timestamp) / 1000), // Convert to seconds
-          call_transcript: call.transcript || '',
+                         (call.end_timestamp && call.start_timestamp) ? 
+                         Math.floor((call.end_timestamp - call.start_timestamp) / 1000) : 0,
+          call_transcript: (call.transcript || '').trim(),
           status: normalizedStatus,
           agent_phone_number: agentPhoneNumber,
           user_id: userId, // Assign the user_id for proper data isolation
@@ -115,16 +190,10 @@ export default async function handler(req, res) {
           is_archived: false
         }
         
-        // Validate required fields before inserting
-        if (!leadData.phone || leadData.phone === '000-000-0000') {
-          console.error('Missing phone number in webhook payload:', JSON.stringify(call, null, 2))
-          return res.status(400).json({ error: 'Missing required field: phone' })
-        }
-        
         if (!leadData.user_id) {
           console.warn('Could not determine user_id for lead. Agent phone:', agentPhoneNumber)
-          // Optionally, you can reject the lead or create it anyway
-          // For now, we'll create it without user_id and the trigger will handle it
+          // You may want to reject leads without a user_id
+          // return res.status(400).json({ error: 'Could not route lead to user' })
         }
 
         console.log('Prepared lead data:', JSON.stringify(leadData, null, 2))
@@ -140,6 +209,9 @@ export default async function handler(req, res) {
           return res.status(500).json({ error: 'Failed to save lead', details: error.message })
         }
 
+        // Mark call as processed
+        processedCalls.set(callId, Date.now())
+        
         console.log('Lead saved successfully:', data)
         break
       default:
