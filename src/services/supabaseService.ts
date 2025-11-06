@@ -366,11 +366,11 @@ export class SupabaseService {
         { event: '*', schema: 'public', table: 'lead_activities' },
         async (payload) => {
           // Only pass through activities for user's own leads
-          if (payload.new) {
+          if (payload.new && 'lead_id' in payload.new) {
             const { data: lead } = await supabase
               .from('leads')
               .select('user_id')
-              .eq('id', payload.new.lead_id)
+              .eq('id', (payload.new as any).lead_id)
               .single()
             
             if (lead?.user_id === user.id) {
