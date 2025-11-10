@@ -11,9 +11,9 @@ const UncompletedLeads: React.FC = () => {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  // Filter uncompleted leads (leads without completion_status)
+  // Filter uncompleted leads (leads without completion_status or with 'incomplete' status)
   const uncompletedLeads = useMemo(() => {
-    return leads.filter(lead => !lead.completion_status)
+    return leads.filter(lead => !lead.completion_status || lead.completion_status === 'incomplete')
   }, [leads])
 
   // Apply search filter

@@ -11,7 +11,7 @@ const OnTheFence: React.FC = () => {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  // Filter on the fence leads - show some leads temporarily if no completion_status data
+  // Filter on the fence leads only
   const onTheFenceLeads = useMemo(() => {
     const filtered = leads.filter(lead => lead.completion_status === 'on_the_fence')
     

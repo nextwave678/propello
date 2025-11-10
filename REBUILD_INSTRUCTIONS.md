@@ -358,3 +358,4 @@ Your database is now properly configured with:
 
 **Next steps**: Deploy your updated frontend code and start using Propello!
 
+

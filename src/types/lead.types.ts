@@ -17,7 +17,7 @@ export interface Lead {
   tags: string[]
   assigned_to?: string
   is_archived: boolean
-  completion_status?: 'successful' | 'on_the_fence' | 'unsuccessful'
+  completion_status?: 'incomplete' | 'successful' | 'on_the_fence' | 'unsuccessful'
   completed_at?: string
 }
 
@@ -41,7 +41,7 @@ export interface LeadFilters {
   dateTo?: string
   assigned_to?: string
   is_archived?: boolean
-  completion_status?: 'successful' | 'on_the_fence' | 'unsuccessful'
+  completion_status?: 'incomplete' | 'successful' | 'on_the_fence' | 'unsuccessful'
   is_completed?: boolean
   // Pagination
   page?: number

@@ -183,6 +183,7 @@ export default async function handler(req, res) {
                          Math.floor((call.end_timestamp - call.start_timestamp) / 1000) : 0,
           call_transcript: (call.transcript || '').trim(),
           status: normalizedStatus,
+          completion_status: 'incomplete', // Default to incomplete for new leads
           agent_phone_number: agentPhoneNumber,
           user_id: userId, // Assign the user_id for proper data isolation
           notes: [],
