@@ -29,7 +29,7 @@ export interface Database {
           tags: string[]
           assigned_to: string | null
           is_archived: boolean
-          completion_status: 'successful' | 'on_the_fence' | 'unsuccessful' | null
+          completion_status: 'incomplete' | 'successful' | 'on_the_fence' | 'unsuccessful' | null
           completed_at: string | null
         }
         Insert: {
@@ -51,7 +51,7 @@ export interface Database {
           tags?: string[]
           assigned_to?: string | null
           is_archived?: boolean
-          completion_status?: 'successful' | 'on_the_fence' | 'unsuccessful' | null
+          completion_status?: 'incomplete' | 'successful' | 'on_the_fence' | 'unsuccessful' | null
           completed_at?: string | null
         }
         Update: {
@@ -73,7 +73,7 @@ export interface Database {
           tags?: string[]
           assigned_to?: string | null
           is_archived?: boolean
-          completion_status?: 'successful' | 'on_the_fence' | 'unsuccessful' | null
+          completion_status?: 'incomplete' | 'successful' | 'on_the_fence' | 'unsuccessful' | null
           completed_at?: string | null
         }
         Relationships: [

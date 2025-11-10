@@ -12,9 +12,12 @@ const CompletedLeads: React.FC = () => {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  // Filter completed leads - show some leads temporarily if no completion_status data
+  // Filter completed leads - exclude 'incomplete' status
   const completedLeads = useMemo(() => {
-    const filtered = leads.filter(lead => lead.completion_status)
+    const filtered = leads.filter(lead => 
+      lead.completion_status && 
+      lead.completion_status !== 'incomplete'
+    )
     
     // If no leads have completion_status, show some sample leads for demo
     if (filtered.length === 0 && leads.length > 0) {
@@ -69,7 +72,7 @@ const CompletedLeads: React.FC = () => {
     }
     
     completedLeads.forEach(lead => {
-      if (lead.completion_status) {
+      if (lead.completion_status && lead.completion_status !== 'incomplete') {
         counts[lead.completion_status]++
       }
     })
