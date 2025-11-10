@@ -7,7 +7,6 @@ import Leads from './pages/Leads'
 import CompletedLeads from './pages/CompletedLeads'
 import OnTheFence from './pages/OnTheFence'
 import UncompletedLeads from './pages/UncompletedLeads'
-import Analytics from './pages/Analytics'
 import LoginPage from './pages/auth/LoginPage'
 import SignupPage from './pages/auth/SignupPage'
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
@@ -100,13 +99,6 @@ function App() {
                   <ProtectedRoute>
                     <Layout>
                       <Leads />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/analytics" element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Analytics />
                     </Layout>
                   </ProtectedRoute>
                 } />

@@ -3,7 +3,6 @@ import { Link, useLocation } from 'react-router-dom'
 import { 
   LayoutDashboard, 
   Users, 
-  BarChart3, 
   Home,
   X,
   CheckCircle,
@@ -30,7 +29,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileMenuOpen, setIsMobileMenuOpen
     { name: 'Completed Leads', href: '/completed-leads', icon: CheckCircle },
     { name: 'Uncompleted Leads', href: '/uncompleted-leads', icon: Clock },
     { name: 'All Leads', href: '/leads', icon: Users },
-    { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   ]
 
   const isActive = (path: string) => {
