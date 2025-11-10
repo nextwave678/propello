@@ -14,23 +14,10 @@ const CompletedLeads: React.FC = () => {
 
   // Filter completed leads - exclude 'incomplete' status
   const completedLeads = useMemo(() => {
-    const filtered = leads.filter(lead => 
+    return leads.filter(lead => 
       lead.completion_status && 
       lead.completion_status !== 'incomplete'
     )
-    
-    // If no leads have completion_status, show some sample leads for demo
-    if (filtered.length === 0 && leads.length > 0) {
-      const sampleLeads = leads.slice(0, 4).map((lead, index) => ({
-        ...lead,
-        completion_status: index % 3 === 0 ? 'successful' as const : 
-                          index % 3 === 1 ? 'unsuccessful' as const : 
-                          'on_the_fence' as const
-      }))
-      return sampleLeads
-    }
-    
-    return filtered
   }, [leads])
 
   // Apply search and status filters

@@ -13,17 +13,7 @@ const OnTheFence: React.FC = () => {
 
   // Filter on the fence leads only
   const onTheFenceLeads = useMemo(() => {
-    const filtered = leads.filter(lead => lead.completion_status === 'on_the_fence')
-    
-    // If no leads have completion_status, show some sample leads for demo
-    if (filtered.length === 0 && leads.length > 0) {
-      return leads.slice(0, 3).map(lead => ({
-        ...lead,
-        completion_status: 'on_the_fence' as const
-      }))
-    }
-    
-    return filtered
+    return leads.filter(lead => lead.completion_status === 'on_the_fence')
   }, [leads])
 
   // Apply search filter
